@@ -1,0 +1,203 @@
+diff --git ecir-springer/samplepaper.tex ecir-springer/samplepaper.tex
+index 986dd44..b06aa71 100644
+--- ecir-springer/samplepaper.tex
++++ ecir-springer/samplepaper.tex
+@@ -3,7 +3,7 @@
+ % Version 2.20 of 2017/10/04
+ %
+ \documentclass[runningheads]{llncs}
+-%
++
+ \usepackage{graphicx}
+ 
+ \usepackage{cite}
+@@ -22,22 +22,30 @@
+ \usepackage{amsmath}
+ \usepackage{amssymb}
+ % \scalebox{algorithm}
++\usepackage{marvosym}
+ 
+ \DeclareMathOperator*{\argmax}{arg\,max}
+ 
+ \begin{document}
+ %
+ \title{Accelerating Substructure Similarity Search for Formula Retrieval}
+-\titlerunning{Accelerating Substructure Similarity Search for Formula Retrieval}
++\titlerunning{Accelerating Substructure Similarity Search}
++
++\author{Wei Zhong\inst{1}\textsuperscript{,\Letter}, Shaurya Rohatgi\inst{2}, Jian Wu\inst{3}, C. Lee Giles\inst{2} \and Richard Zanibbi\inst{1}\textsuperscript{,\Letter}}
++\institute{
++Rochester Institute of Technology \\
++\email{\{wxz8033,rxzvcs\}@rit.edu}
++\and Pennsylvania State University 
++\and Old Dominion University
++}
+ 
+-%\author{Wei Zhong \and Richard Zanibbi}
+-%\institute{Rochester Institute of Technology}
++\authorrunning{Wei Zhong et al.}
+ 
+ \maketitle
+ 
+ \begin{abstract}
+ Existing formula retrieval systems that use substructure matching are effective, but suffer from slow retrieval times caused by the complexity of structure matching.  We present a specialized inverted index structure and rank-safe dynamic pruning model for faster substructure retrieval. Formulas are indexed from their Operator Tree (OPT) presentations. Our model is evaluated on the NTCIR-12 Wikipedia Formula Browsing Task dataset and a newly created larger formula corpus crawled from Math StackExchange.  Our results show that
+-our approach preserves the effectiveness of structure matching, while also allowing queries to be executed in real-time. Our source code and StackExchange formula dataset will be made publicly available before the conference.
++our approach preserves the effectiveness of structure matching, while also allowing queries to be executed in real-time.
+ 
+ \keywords{Math information retrieval, Query processing optimization, Dynamic pruning}
+ \end{abstract}
+@@ -80,7 +88,7 @@ $(a + bc) + xy$
+ In the most recent math similarity search competition\footnote{The NTCIR-12 Wikipedia Formula Browsing Task.}, effective systems all take a tree-based approach by extracting search units from tree representations.
+ For example, an Operator Tree (OPT) is used in Figure~\ref{intro} to represent math formulas where operands are represented by leaves and operators are lifted to the internal nodes.
+ This facilitates searching the common subtrees shared by two math expressions, specifically, we can index (tokenized) leaf-root paths and their prefixes from OPTs as search units (or query ``terms''). This allows us to find relevant formulas regardless of operand order.
+-For example, the two common structures highlighted in green and purple can be found by matching tokenized paths VAR/TIMES/ADD, VAR/TIMES and VAR/ADD (uppercase words denote tokens) and group them by shared subtree root nodes (as proposed by \cite{a0_2019}).
++In Figure~\ref{intro} for instance, the two common structures highlighted in green and purple can be found by matching tokenized paths VAR/TIMES/ADD, VAR/TIMES and VAR/ADD (uppercase words denote tokens) and group them by shared subtree root nodes (as proposed by \cite{a0_2019}).
+ However, indexing all prefixes of leaf-root paths would result in considerable search units in any realistic math search task. In order to carry structure information, it is common to see long queries with over tens or even hundreds of ``terms" which is unusual for text search. This makes query processing costly because many posting lists are needed for retrieval.
+ 
+ % In fact, structure search on an inverted index typically involve significantly long query to carry structure information, this makes query processing expensive due to more merging posting lists.
+@@ -95,8 +103,6 @@ However, effective substructure search requires additional matching or alignment
+ In fact, reportedly few state-of-the-art MIR systems have achieved practical query run times~\cite{ntcir12, mcat_16}, even when given a large amount of computing resources.
+ In this paper we try to address this problem by introducing a specialized inverted index that associates query structrual representation with posting lists, and we propose a dynamic pruning method based on this specialized inverted index to boost efficiency.
+ 
+-%For our experiments we use a modified version of the Approach0 search engine, which is available as open-source \cite{a0_2019}.
+-
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ % \begin{figure}[!t]
+ % \begin{center}
+@@ -143,7 +149,7 @@ Shan et al.~\cite{Shandongdong2012} show that MaxScore variants (e.g. BMM, LBMM)
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ \section{Preliminaries}
+ \noindent\textbf{Baseline Model}\; Our model is based on previous work by Zhong et al.~\cite{a0_2019}: Given a formula (e.g., expression in \LaTeX{}), it extracts prefixes from its OPT leaf-root paths as search terms or index terms. For indexed paths, they are mapped to corresponding posting lists in an inverted index where the IDs of expressions containing the path are appended.
+-At query time, the posting lists corresponding to query formula paths are merged and approximate matching is performed on hit paths one expression at a time.
++At query time, the posting lists corresponding to query formula paths are merged and approximate matching is performed on candidates one expression at a time.
+ 
+ Because math symbols are interchangeable, paths are tokenized for better recall (operand symbols such as $a, b, c$ are tokenized into VAR).
+ For example, if document expression ``bc + xy + a + z'' is indexed, its expression ID (or ExpID) will be appended to the posting lists associated with tokenized paths VAR/TIMES, VAR/ADD and VAR/TIMES/ADD from its OPT representation (see Figure~\ref{intro}).
+@@ -165,7 +171,7 @@ The original model proposes to match as many as 3 widest common subtrees and mea
+ \end{align}
+ 
+ %
+-According to previous experiments, interestingly, the multiple subtree matching does boost effectiveness, but only using single widest common subtree matching would still produce results that outperform other systems in highly relevance metrics.
++According to previous experiments in \cite{a0_2019}, interestingly, the multiple subtree matching does boost effectiveness, but matching only single widest common subtree would still produce results that outperform other systems in highly relevance metrics.
+ %
+ Consider only scoring based on the widest common subtree and counting its operands, the scoring can be much more simplified, and the resulting score between query and document OPTs $T_q, T_d$ is the widest matched tree width $w^*_{Q, D}$, formally
+ \begin{align}
+@@ -452,7 +458,7 @@ In our implementation, each posting list is traversed by an iterator ($iters[t]$
+ 		\EndFor
+ 		\If {widest $> 0$}
+ 		    \State score := calculate final score (including symbol similarity).
+-			\Comment{See [24].}
++			\Comment{See [23].}
+ 			\If {heap is not full {\bf or} score $> \theta$}
+ 				\State Push candidate or replace the lowest scored hit in heap.
+ 				\If {heap is full}
+@@ -482,23 +488,17 @@ The \Call{RequirementSet}{} returns selected iterators of the requirement set (c
+ The assignment according to different pruning strategies is described in Section~\ref{strategy}.
+ %
+ In MaxRef strategy, we sort posting lists in descending order of their $\text{MaxRef}$ values, and take as many posting lists into non-requirement set from lowest $\text{MaxRef}$ value.
+-At merging, a \textit{candidate} is selected from the hit posting lists of the requirement set which has the minimal ExpID.
++At merging, a \textit{candidate} is selected from the hit posting lists of the requirement set which have the minimal ExpID.
+ Requirement set iterators are advanced one by one using \textit{next()} function, while iterators in the non-requirement set are advancing directly to the ID equal to or greater than the current candidate using \textit{skipTo()} function. In Figure~\ref{figillu} for example, the posting list corresponding to VAR/TIMES/ADD is in the requirement set under the MaxRef strategy, while the other two are not: Document expression 13 and 15 will be skipped if the next candidate is 90.
+ 
+ At each iteration, a set of \textit{hitNodes} is inferred containing query nodes associated with hit posting lists (i.e., those current ExpIDs are candidate IDs).
+ \Call{qryNodeMatch}{} calculates the match of each hit node according to equation~\ref{eq:5}, pruning those nodes whose maximum matching size will be smaller than the matched size of any already calculated node.
+-Then it selects the best matched query node as the \emph{widest} one.
+ %
+ Given query hit node $q1$ in Figure~\ref{figillu}, function \Call{qryNodeMatch}{} returns value of
+ $$\max_{n\in T_d}\;\nu(G^{(1, n)}) = \max(\min(5, 2) + \min(1, 2),\; \min(5, 3)) = 3$$
+-% and it is calculated from two LSSs rooted at $q1$, i.e., q1/5 of VAR/TIMES/ADD and q1/1 of VAR/ADD, the resulting summation is stored in match vector \emph{nodeMatch}:
+-% \newcommand{\rvect}[1]{\begin{bmatrix} #1 \end{bmatrix}}
+-% $$
+-% \rvect{\min(5, 3) & 0 & 0 & \min(5, 2)} + \rvect{0 & 0 & 0 & \min(1, 2)}
+-% $$
+-% and the maximum element in the resulting vector, i.e. 3, means that the best match for query node q1 is either node d1 or d4 in candidate OPT (ExpID = 12), with the number of matched paths both equal to 3.
+-%
+-Finally, structural similarity $w^*_{Q, D}$ is merely selecting the maximum query node match in \textit{hitNodes}. After obtaining $w^*_{Q, D}$, we additionally calculate an \emph{overall similarity score}~\cite{a0_2019} as the final score for ranking which further considers symbolic similarity (e.g., to differentiate $E=mc^2$ and $y=ax^2$) and also penalizes oversized candidate document.
++Then the algorithm selects the best matched query node and its matched width (\emph{widest}) is our interested structural similarity $w^*_{Q, D}$.
++
++After obtaining $w^*_{Q, D}$, we additionally calculate an \emph{overall similarity score}~\cite{a0_2019} as the final score for ranking which further considers symbolic similarity (e.g., to differentiate $E=mc^2$ and $y=ax^2$) and also penalizes oversized candidate document.
+ Because of this additional layer, we need to relax our upperbound further.
+ According to \cite{a0_2019}, the relaxing function $u$ is defined as
+ \begin{equation}
+@@ -506,7 +506,7 @@ u(w) = \frac{w}{|\text{leaves}(T_q)| + w} \left[ (1 - \eta) + \eta \, \frac 1 {\
+ \end{equation}
+ where in our setting,  parameters $\eta = 0.05, n_d = 1$.
+ 
+-Whenever threshold $\theta$ is updated, we will examine all the query nodes, if the total number of leaves $w_m$ of a query node $m$ is less or equal to threshold, i.e., $u(m) \le \theta$, then the corresponding subtree of this node is too ``small'' to make it into top K results, so we choose to drop these small nodes. As a result, some of the posting lists (or iterators) will be dropped due to zero reference.
++Whenever threshold $\theta$ is updated, we will examine all the query nodes, if a query node $m$ has an upperbound less or equal to threshold, i.e., $u(m) \le \theta$, then the corresponding subtree of this node is too ``small'' to make it into top K results, so we will drop these small nodes. As a result, some of the posting lists (or iterators) may also be dropped due to zero reference.
+ 
+ \section{Evaluation}
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@@ -602,13 +602,13 @@ Whenever threshold $\theta$ is updated, we will examine all the query nodes, if
+ \label{majortab}
+ \end{table*}
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-We first evaluate our system on the NTCIR-12 Wikipedia Formula Browsing Task~\cite{ntcir12} (NTCIR-12 for short), which is the most current benchmark for formula-only retrieval.
++We first evaluate our system~\footnote{Source code: \url{https://github.com/approach0/search-engine/tree/ecir2020}} on the NTCIR-12 Wikipedia Formula Browsing Task~\cite{ntcir12} (NTCIR-12 for short), which is the most current benchmark for formula-only retrieval.
+ The dataset contains over 590,000 math expressions taken from English Wikipedia.
+ %
+ Since work in formula retrieval is relatively new, there are only 40 queries in NTCIR-12 that can be compared with other published systems. However, these queries are well designed to cover a variety of math expressions in different complexity and it is still meaningful to compare for efficiency evaluation. There are 20 queries containing wildcards (using wildcard specifier \textbf{\textbackslash{}qvar} to match arbitrary subexpression or symbols, e.g., query ``\textbackslash qvar\{a\} + \textbackslash qvar\{b\}'' can match ``$x^2 + (y + 1)^3$'').
+ 
+ We add support for wildcards by simply treating internal nodes (representing a rooted subexpression) of indexing formula as additional ``leaves'' (by ignoring their descendants), and the wildcard specifiers in a query are treated as normal leaves to match those indexed wildcard paths.
+-Since the corpus of NTCIR-12 is not large enough to show the full impact of pruning, we also evaluate query run times on a corpus containing over 1 million math expressions from Math StackExchange (MSE) Q\&A website\footnote{This dataset will be made publicly available.} and we run the same query set from NTCIR-12.
++Since the corpus of NTCIR-12 is not large enough to show the full impact of pruning, we also evaluate query run times on a corpus containing over 1 million math related documents/threads from Math StackExchange (MSE) Q\&A website\footnote{Dataset: \url{https://approach0.xyz/ecir2020/mse-corpus.tar.gz}} and we run the same query set from NTCIR-12.
+ %
+ Run times are measured only for posting lists merging stage (e.g., time cost for parsing query into OPT are excluded) and unless specified, evaluating posting lists are compressed and cached into memory.
+ %
+@@ -640,8 +640,8 @@ There are a few times the best minimal run times are led by other strategies, fo
+  	\toprule
+  	MCAT                &     .5678 &     .5698 & \bf .4725 &     .5015 &     .5202 &     .5356 \\
+ {Tangent-S} &     .6361 &     .5872 &     .4699 & \bf .5368 & \bf .5530 & \bf .5620 \\
+-{A0-best} & \bf .6726 & \bf .5950 &     -     &      -    &      -    &       -   \\
+-{A0-opd-only} & .6586 &   .5153 &     -     &      -    &      -    &       -   \\
++{base-best} & \bf .6726 & \bf .5950 &     -     &      -    &      -    &       -   \\
++{base-opd-only} & .6586 &   .5153 &     -     &      -    &      -    &       -   \\
+  	Ours (pruning)&     .6586 &     .5173 &     .3678 &     .3973 &     .5132 &     .4573 \\
+  	Ours (exhaustive)&     .6586 &     .5173 &     .3678 &     .3973 &     .5132 &     .4573 \\
+  	\bottomrule
+@@ -666,29 +666,29 @@ There are a few times the best minimal run times are led by other strategies, fo
+ \end{figure*}
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+-Secondly, we have compared our system effectiveness and efficiency with Tangent-S~\cite{tangent-combine2017}, MCAT~\cite{mcat_16} and Approach0~\cite{a0_2019} systems (see Figure~\ref{boxplot}), all of which are also structure-based formula search engines and they have obtained the best published Bpref scores on NTCIR-12 dataset.
++Secondly, we have compared our system effectiveness and efficiency with Tangent-S~\cite{tangent-combine2017}, MCAT~\cite{mcat_16} and our baseline system without pruning~\cite{a0_2019} systems (see Figure~\ref{boxplot}), all of which are also structure-based formula search engines and they have obtained the best published Bpref scores on NTCIR-12 dataset.
+ In addition, ICST system~\cite{peking2016} also obtains effective results for math and text mixed task, but they do training on previous Wiki dataset and their system is currently not available.
+ 
+-These systems are evaluated on the same host in a single thread for top-1000 results.
++All compared systems are evaluated on the same host in a single thread for top-1000 results.
+ % The computational environment is: Intel Core i5 @ 3.60GHz per core, 16 GB memory and SSD hard drive.
+ %
+ We use our best performance strategy, i.e., GBP-LEN, having an on-disk version with posting lists uncompressed and always read from disk, and an in-memory version with compression.
+ %
+-For Approach0, only 20 non-wildcard queries are reported because it does not support wildcard query.
+-We compare Approach0 best performed run (A0-best) and the simplified version (A0-opd-only) whose scoring only considers single best matched tree width (see equation~\ref{eq:2}).
++For baseline system, only 20 non-wildcard queries are reported because it does not support wildcard query.
++We compare baseline best performed run (base-best) which uses costly multiple tree matching and its specialized version (base-opd-only) which is comparable to our system because its scoring only considers single best matched tree width (see equation~\ref{eq:2}).
+ %
+ Tangent-S has a few significant outliers as a result of its costly alignment algorithm to rerank structure and find the Maximum Subtree Similarity~\cite{tangent-multistage2016}, its non-linear complexity makes it expensive for some long queries (especially in wildcard case).
+ %
+ And MCAT reportedly has a median query execution time around 25 seconds, using a server machine and multi-threading~\cite{mcat_16}.
+ So we remove Tangent-S significant outliers and MCAT from runtime boxplot.
+-Additionally, we only include the faster run A0-opd-only from Approach0.
++To save space, we only include the faster run base-opd-only from baseline.
+ 
+-As our results suggest, we outperform Tangent-S in efficiency even if we exclude their outlier queries, with higher Bpref in non-wildcards fully relevant results. Our efficiency is also better than Approach0 even it only consider less complex non-wildcard queries.
++As our results suggest, we outperform Tangent-S in efficiency even if we exclude their outlier queries, with higher Bpref in non-wildcards fully relevant results. Our efficiency is also better than baseline even if it only considers less complex non-wildcard queries.
+ %
+ However, our overall effectiveness is skewed by bad performance of wildcard queries because a much more expensive phase is introduced to boost accuracy by other systems to handle inherently difficult ``structrual wildcards''.
+ We think it is still an open problem to handle structure wildcard queries effectively in real time.
+ 
+-Our pruning strategies are rank-safe (pruning and exhaustive version shows the same Bpref scores) but there is a minor Bpref difference between ours and the model we are based on (A0-opd-only) due to parser changes we have applied to support wildcards (e.g., handle single left brace array as seen in a wildcard query) and they happen to slightly improve accuracy in partially relevant cases.
++Our pruning strategies are rank-safe (pruning and exhaustive version shows the same Bpref scores) but there is a minor Bpref difference between ours and baseline (base-opd-only) due to parser changes we have applied to support wildcards (e.g., handle single left brace array as seen in a wildcard query) and they happen to slightly improve accuracy in partially relevant cases.
+ 
+ 
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@@ -710,7 +710,7 @@ Our pruning strategies are rank-safe (pruning and exhaustive version shows the s
+ 
+ \section{Conclusion}
+ We have presented rank-safe dynamic pruning strategies that produce an upperbound estimation of structural similarity in order to speedup formula search using subtree matching.
+-Our dynamic pruning strategies and specialized inverted index are different from traditional linear text search pruning methods and it further associates query structural representation with posting lists.
++Our dynamic pruning strategies and specialized inverted index are different from traditional linear text search pruning methods and they further associates query structural representation with posting lists.
+ % We evaluate our query merge times of different strategies, and compare ours with the most effective systems on the NTCIR-12 Wikipedia Formula Browsing Task.
+ Our results show we can obtain substantial improvement in efficiency over the baseline model, while still generating highly relevant non-wildcard search results.
+ Using our approach, we can process a diverse set of structural queries in real time.
