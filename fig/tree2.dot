@@ -1,0 +1,29 @@
+graph TREE {
+    n1 [label="ADD"]
+    n2 [label="GROUP"]
+    n3 [label="TIMES"]
+    n4 [label="ADD"]
+    n5 [label="TIMES"]
+
+	node [shape=box]
+    l1 [label="c"]
+    l2 [label="d"]
+    l3 [label="a"]
+    l4 [label="b"]
+    l5 [label="e"]
+    l6 [label="f"]
+    l7 [label="g"]
+
+	n1 -- n2
+	n1 -- n3
+	n2 -- n4
+	n4 -- n5
+
+	n4 -- l1
+	n4 -- l2
+	n5 -- l3
+	n5 -- l4
+	n3 -- l5
+	n3 -- l6
+	n3 -- l7
+}

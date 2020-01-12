@@ -1,0 +1,23 @@
+graph TREE {
+    n1 [label="ADD"]
+    n2 [label="TIMES"]
+    n3 [label="TIMES"]
+
+	node [shape=box]
+    l1 [label="f"]
+    l2 [label="a"]
+    l3 [label="b"]
+    l4 [label="c"]
+    l5 [label="d"]
+    l6 [label="e"]
+
+	n1 -- n2
+	n1 -- n3
+
+	n1 -- l1
+	n2 -- l2
+	n2 -- l3
+	n2 -- l4
+	n3 -- l5
+	n3 -- l6
+}

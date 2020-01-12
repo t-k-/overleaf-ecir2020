@@ -1,0 +1,27 @@
+graph TREE {
+	node [fontname="Times", fontsize=30]
+    a1 [label="ADD"]
+    a2 [label="ADD", penwidth=4, color="/dark23/1"]
+    gr [label="GROUP"]
+    t1 [label="TIMES", penwidth=4, color="/dark23/1"]
+    t2 [label="TIMES", penwidth=4, color="/dark23/3"]
+
+	node [shape=box]
+    a [label="a", penwidth=4, color="/dark23/1"]
+    b [label="b", penwidth=4, color="/dark23/1"]
+    c [label="c", penwidth=4, color="/dark23/1"]
+    x [label="x", penwidth=4, color="/dark23/3"]
+    y [label="y", penwidth=4, color="/dark23/3"]
+
+	a1 -- gr 
+	gr -- a2 
+	a2 -- t1 [penwidth=4, color="/dark23/1"]
+
+	a1 -- t2 
+
+	a2 -- a [penwidth=4, color="/dark23/1"]
+	t1 -- b [penwidth=4, color="/dark23/1"]
+	t1 -- c [penwidth=4, color="/dark23/1"]
+	t2 -- x [penwidth=4, color="/dark23/3"]
+	t2 -- y [penwidth=4, color="/dark23/3"]
+}

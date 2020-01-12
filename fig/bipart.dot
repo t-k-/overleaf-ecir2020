@@ -1,0 +1,6 @@
+graph G {
+	node [fontname="Times", fontsize=30, penwidth=4]
+	rankdir=LR;
+	leaf[label="z", shape=box]
+	leaf -- ADD [penwidth=4]
+}
