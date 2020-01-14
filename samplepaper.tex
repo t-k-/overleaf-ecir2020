@@ -44,22 +44,16 @@ Rochester Institute of Technology \\
 \maketitle
 
 \begin{abstract}
-Existing formula retrieval systems that use substructure matching are effective, but suffer from slow retrieval times caused by the complexity of structure matching.  We present a specialized inverted index structure and rank-safe dynamic pruning model for faster substructure retrieval. Formulas are indexed from their Operator Tree (OPT) presentations. Our model is evaluated on the NTCIR-12 Wikipedia Formula Browsing Task dataset and a newly created larger formula corpus crawled from Math StackExchange.  Our results show that
+Existing formula retrieval systems that use substructure matching are effective, but suffer from slow retrieval times caused by the complexity of structure matching.  We present a specialized inverted index structure and rank-safe dynamic pruning algorithm for faster substructure retrieval. Formulas are indexed from their Operator Tree (OPT) presentations. Our model is evaluated on the NTCIR-12 Wikipedia Formula Browsing Task dataset and a newly created larger formula corpus crawled from Math StackExchange.  Our results show that
 our approach preserves the effectiveness of structure matching, while also allowing queries to be executed in real-time.
 
 \keywords{Math information retrieval, Query processing optimization, Dynamic pruning}
 \end{abstract}
 
 \section{Introduction}
-In information retrieval, a great deal of research has gone into creating high-efficiency search engines for large corpora.
+In information retrieval, a great deal of research has gone into creating efficient search engines for large corpora.
 However, a few of them have addressed substructure search in structural content, e.g., in Mathematical Information Retrieval (MIR)~\cite{survey2012} where efficient substructure similarity search is needed to to identify shared subexpressions effectively.
-%
-%Unlike standard text search, substructure similarity requires graph matching and comparison to be effective. Unfortunately, this
-%requires more computation than scoring documents by common keywords and their frequencies.
-%
-For example, in math expression search problem, to discern that $a+b$ and $b + a$ are equivalent (by commutativity), but that $ab+cd$ and $a+bcd$ are different, simply applying tokenization and counting common token frequencies are not sufficient. Instead, a hierarchical representation of mathematical operations is needed.
-Furthermore, to locate the query expression ``$\sum^{n}_{k=0} \frac{n^k}{k!} e^{-n}$'' in the formula ``$\lim_{n \rightarrow \infty} \sum^{n}_{k=0} e^{-n} \frac{n^k}{k!} = \frac 12$'' for example, shared substructures need to be identified.
-%in this case, we need to capture that the scaling factor and exponent are inverted.
+For example, in math expression search problem, to discern that $a+b$ and $b + a$ are equivalent (by commutativity), but that $ab+cd$ and $a+bcd$ are different, simply applying tokenization and counting common token frequencies are not sufficient. Instead, a hierarchical representation of mathematical operations is needed, shared substructures also need to be identified.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[!t]
@@ -85,23 +79,16 @@ $(a + bc) + xy$
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-In the most recent math similarity search competition\footnote{The NTCIR-12 Wikipedia Formula Browsing Task.}, effective systems all take a tree-based approach by extracting search units from tree representations.
+In the most recent math similarity search competition\footnote{The NTCIR-12 Wikipedia Formula Browsing Task.}, effective systems all take a tree-based approach by extracting query terms from tree representations.
 For example, an Operator Tree (OPT) is used in Figure~\ref{intro} to represent math formulas where operands are represented by leaves and operators are lifted to the internal nodes.
-This facilitates searching the common subtrees shared by two math expressions, specifically, we can index (tokenized) leaf-root paths and their prefixes from OPTs as search units (or query ``terms''). This allows us to find relevant formulas regardless of operand order.
-In Figure~\ref{intro} for instance, the two common structures highlighted in green and purple can be found by matching tokenized paths VAR/TIMES/ADD, VAR/TIMES and VAR/ADD (uppercase words denote tokens) and group them by shared subtree root nodes (as proposed by \cite{a0_2019}).
-However, indexing all prefixes of leaf-root paths would result in considerable search units in any realistic math search task. In order to carry structure information, it is common to see long queries with over tens or even hundreds of ``terms" which is unusual for text search. This makes query processing costly because many posting lists are needed for retrieval.
-
-% In fact, structure search on an inverted index typically involve significantly long query to carry structure information, this makes query processing expensive due to more merging posting lists.
-
-%And most of the time, only a few query terms contribute to similarity score during post list merging, which implies a good potential for pruning due to the large number of unnecessary reads operation in a long query.
+This facilitates searching the common subtrees shared by two math expressions, specifically, we can index paths from their tree representations and find their shared structure by matching their common paths grouped by root-end nodes. 
+However, indexing all prefixes of leaf-root paths would result in considerable query terms in any realistic math search task. In order to carry structure information, it is common to see long queries with over tens or even hundreds of ``terms" which is unusual for text search. This makes query processing costly because many posting lists are merged for retrieval.
 
 In text similarity search, query processing can be accelerated through dynamic pruning~\cite{tonellotto2018efficient}, which typically estimates score upperbounds to prune documents unlikely to be in the top K results.
-% in substructure searching on an inverted index, simply accumulating term score upperbounds independently may produce a very loose overall upperbound (preventing us applying traditional dynamically pruning effectively),
-%ntcir12
-%because in structure matching, the frequency of single term occurrence does not necessarily indicate any relevance,
-However, effective substructure search requires additional matching or alignment among query terms, and this makes it hard to get a tight upperbound thus it prevents us applying traditional dynamically pruning effectively.
-In fact, reportedly few state-of-the-art MIR systems have achieved practical query run times~\cite{ntcir12, mcat_16}, even when given a large amount of computing resources.
-In this paper we try to address this problem by introducing a specialized inverted index that associates query structrual representation with posting lists, and we propose a dynamic pruning method based on this specialized inverted index to boost efficiency.
+
+However, effective substructure search requires additional matching or alignment among query terms, and this makes it hard to get a good score estimation thus it prevents us applying traditional dynamically pruning effectively.
+In fact, reportedly few state-of-the-art MIR systems have achieved practical query run times even when given a large amount of computing resources~\cite{ntcir12, mcat_16}.
+In this paper we try to address this problem by introducing a specialized inverted index and we propose a dynamic pruning method based on this specialized inverted index to boost efficiency.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{figure}[!t]
@@ -131,12 +118,12 @@ However, tree-based systems usually need to calculate costly graph matching or e
 Recently, a path-based approach~\cite{a0_2019} was developed to search substructures in formula OPTs approximately by assuming that identical formulas have the same leaf-root path set.
 Although it obtains the best effectiveness for the NTCIR-12 dataset, due to a typically large number of query paths in formula subtrees, the query run time performance is still not ideal (the maximum run times can take a couple of seconds).
 
-Dynamic pruning has been recognized as an effective way to reduce query processing times~\cite{jonassen_simon_2011, antonio2019, Shandongdong2012, macdonald2011upper, tonellotto2018efficient}.
+Dynamic pruning has been recognized as an effective way to reduce query processing times~\cite{jonassen_simon_2011, antonio2019, macdonald2011upper, tonellotto2018efficient}.
 %
 Dynamic pruning speeds up query processing by skipping scoring calculations or avoiding unnecessary reads for documents which are unlikely to be ranked into the top K results.
 %
-Pruning methods can be based on different query processing schemes~\cite{Shandongdong2012}:
-Document-at-a-time (DAAT) requires all relevant posting lists be merged simultaneously. Term-at-a-time (TAAT) or score-at-a-time (SAAT) processes one posting list at a time for each term, requiring additional memory (for \textit{accumulators}) to store partial scores, and posting lists in this case are usually sorted by document importance (e.g, impact score~\cite{anh2006SAAT}), with promising documents placed at  the front of inverted lists.
+Pruning methods can be based on different query processing schemes:
+Document-at-a-time (DAAT) requires all relevant posting lists be merged simultaneously. Term-at-a-time (TAAT) or score-at-a-time (SAAT) processes one posting list at a time for each term, requiring additional memory to store partial scores, and posting lists in this case are usually sorted by document importance (e.g, impact score~\cite{anh2006SAAT}), with promising documents placed at  the front of inverted lists.
 %
 Pruning strategies are \textit{rank-safe} (or \textit{safe up to rank K})~\cite{turtle_flood_1995} if they guarantee that the top K documents are ranked in the same order before and after pruning. 
 %
@@ -148,21 +135,20 @@ Shan et al.~\cite{Shandongdong2012} show that MaxScore variants (e.g. BMM, LBMM)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Preliminaries}
-\noindent\textbf{Baseline Model}\; Our model is based on previous work by Zhong et al.~\cite{a0_2019}: Given a formula (e.g., expression in \LaTeX{}), it extracts prefixes from its OPT leaf-root paths as search terms or index terms. For indexed paths, they are mapped to corresponding posting lists in an inverted index where the IDs of expressions containing the path are appended.
+\noindent\textbf{Baseline Model}\; This work is based on our previous work~\cite{a0_2019} which extracts prefixes from query OPT leaf-root paths as query or index terms, the OPT is parsed from a formula/expression in \LaTeX{}. For indexed paths, they are mapped to corresponding posting lists in an inverted index where the IDs of expressions containing the path are appended.
 At query time, the posting lists corresponding to query formula paths are merged and approximate matching is performed on candidates one expression at a time.
 
 Because math symbols are interchangeable, paths are tokenized for better recall (operand symbols such as $a, b, c$ are tokenized into VAR).
-For example, if document expression ``bc + xy + a + z'' is indexed, its expression ID (or ExpID) will be appended to the posting lists associated with tokenized paths VAR/TIMES, VAR/ADD and VAR/TIMES/ADD from its OPT representation (see Figure~\ref{intro}).
+Given Figure~\ref{intro} for example, if document expression ``bc + xy + a + z'' is indexed, its expression ID (or ExpID) will be appended to the posting lists associated with tokenized paths from its OPT representation.
+And the two common structures highlighted in green and purple can be found by matching these tokenized paths, i.e.,  VAR/TIMES, VAR/ADD and VAR/TIMES/ADD (uppercase words denote tokens, VAR is the token for variables) and group them by shared subtree root nodes (i.e., ADD and TIMES on the right side) as proposed in \cite{a0_2019}.
 %
 In our context, two paths can match if and only if they have the same tokenized paths,
 hence ``a/+'' and ``z/+'' can be matched.
 
-In addition to expression IDs, the posting list entry stores the root-end node IDs of indexed paths to reconstruct structure at merge time.
-%when document tree structure information are lost after indexing.
-%
-At query time, the model groups matched paths (or hit paths) by their root-end node IDs and get a ``width'' value (number of leafs) of matched common subtrees, assuming that subtrees are structurally identical only if their leaf-root paths match.
+As a result, in addition to expression IDs, the posting list entry stores the root-end node IDs of indexed paths to reconstruct structure at merge time.
+At query time, the model use the size of matched common subtrees, assuming that subtrees are structurally identical only if their leaf-root paths match.
 
-Given Figure~\ref{intro} as example, we can query the left side tree by path VAR/TIMES, VAR/ADD and VAR/TIMES/ADD for corresponding posting lists and merge the ExpIDs to find the hit document (on the right), then reconstruct matched substructure(s) by grouping root-end node ADD and TIMES on the document side, and identify all possible pairs of common subtrees. The model then chooses a subset of widest matched subtree(s) (e.g., $a+bc$ is the maximum one since it has 3 common leaves and is ``wider'' than the other choices) and score similarity based on their properties (e.g. by the total number of matched nodes).
+The model then chooses a subset of widest matched subtree(s) (e.g., $a+bc$ is the maximum one since it has 3 common leaves and is ``wider'' than the other choices) and score similarity based on their properties (e.g. by the total number of matched nodes).
 
 The original model proposes to match as many as 3 widest common subtrees and measure similarity by summing the number of matched leaves and operators from different common subtrees $\hat{T}_q^i, \hat{T}_d^i$ of a common forest $\pi$ (assigning them different score weights $\alpha$ and $\beta$):
 \begin{align}
