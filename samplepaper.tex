@@ -463,8 +463,20 @@ where in our setting,  parameters $\eta = 0.05, n_d = 1$.
 Whenever threshold $\theta$ is updated, we will examine all the query nodes, if a query node $m$ has an upperbound less or equal to threshold, i.e., $u(m) \le \theta$, then the corresponding subtree of this node is too ``small'' to make it into top K results. As a result, some of the posting lists (or iterators) may also be dropped due to zero reference.
 
 \section{Evaluation}
+We first evaluate our system~\footnote{Source code: \url{https://github.com/approach0/search-engine/tree/ecir2020}} on the NTCIR-12 Wikipedia Formula Browsing Task~\cite{ntcir12} (NTCIR-12 for short), which is the most current benchmark for formula-only retrieval.
+The dataset contains over 590,000 math expressions taken from English Wikipedia.
+%
+Since work in formula retrieval is relatively new, there are only 40 queries in NTCIR-12 that can be compared with other published systems. However, these queries are well designed to cover a variety of math expressions in different complexity and it is still meaningful to compare for efficiency evaluation. There are 20 queries containing wildcards (using wildcard specifier \textbf{\textbackslash{}qvar} to match arbitrary subexpression or symbols, e.g., query ``\textbackslash qvar\{a\} + \textbackslash qvar\{b\}'' can match ``$x^2 + (y + 1)^3$'').
+
+We add support for wildcards by simply treating internal nodes (representing a rooted subexpression) of indexing formula as additional ``leaves'' (by ignoring their descendants), and the wildcard specifiers in a query are treated as normal leaves to match those indexed wildcard paths.
+Since the corpus of NTCIR-12 is not large enough to show the full impact of pruning, we also evaluate query run times on a corpus containing over 1 million math related documents/threads from Math StackExchange (MSE) Q\&A website\footnote{Dataset: \url{https://approach0.xyz/ecir2020/mse-corpus.tar.gz}} and we run the same query set from NTCIR-12.
+%
+Run times are measured only for posting lists merging stage (e.g., time cost for parsing query into OPT are excluded) and unless specified, evaluating posting lists are compressed and cached into memory.
+%
+Experiment consists of five independent runs for each system and we take the results from overall distribution.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{table*}[!b]
+\begin{table*}[]
 \small
 	\centering
     \caption{Query merge time performance (in milliseconds) of different strategies.}
@@ -556,17 +568,6 @@ Whenever threshold $\theta$ is updated, we will examine all the query nodes, if 
 \label{majortab}
 \end{table*}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-We first evaluate our system~\footnote{Source code: \url{https://github.com/approach0/search-engine/tree/ecir2020}} on the NTCIR-12 Wikipedia Formula Browsing Task~\cite{ntcir12} (NTCIR-12 for short), which is the most current benchmark for formula-only retrieval.
-The dataset contains over 590,000 math expressions taken from English Wikipedia.
-%
-Since work in formula retrieval is relatively new, there are only 40 queries in NTCIR-12 that can be compared with other published systems. However, these queries are well designed to cover a variety of math expressions in different complexity and it is still meaningful to compare for efficiency evaluation. There are 20 queries containing wildcards (using wildcard specifier \textbf{\textbackslash{}qvar} to match arbitrary subexpression or symbols, e.g., query ``\textbackslash qvar\{a\} + \textbackslash qvar\{b\}'' can match ``$x^2 + (y + 1)^3$'').
-
-We add support for wildcards by simply treating internal nodes (representing a rooted subexpression) of indexing formula as additional ``leaves'' (by ignoring their descendants), and the wildcard specifiers in a query are treated as normal leaves to match those indexed wildcard paths.
-Since the corpus of NTCIR-12 is not large enough to show the full impact of pruning, we also evaluate query run times on a corpus containing over 1 million math related documents/threads from Math StackExchange (MSE) Q\&A website\footnote{Dataset: \url{https://approach0.xyz/ecir2020/mse-corpus.tar.gz}} and we run the same query set from NTCIR-12.
-%
-Run times are measured only for posting lists merging stage (e.g., time cost for parsing query into OPT are excluded) and unless specified, evaluating posting lists are compressed and cached into memory.
-%
-Experiment consists of five independent runs for each system and we take the results from overall distribution.
 
 Table~\ref{majortab} reports run time statistics of different strategies.
 Non-pruning (exhaustive search) baselines with K = 100 are also compared here.
