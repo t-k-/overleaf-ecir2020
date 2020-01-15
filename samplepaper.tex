@@ -189,7 +189,7 @@ In contrast, typical TF-IDF scoring has all hit terms contribute to the ranking 
 
 On the merge of posting lists, a set of corresponding query paths will match a set of paths from a document expression one at a time, each time a \textit{hit path set} consisting of matched query paths and paths from a document are examined.
 %
-Define $\mathcal{P}(T)$ to be all the prefix paths we extract from OPT, i.e.,
+Define $\mathcal{P}(T)$ to be all the prefix paths we extract from OPT $T$, i.e.,
 $\mathcal{P}(T) = \{p: p \in \operatorname{leafroot\_paths}(T^n), n \in T\}$ where $T^n$ is the entire subtree of $T$ rooted at $n$ with all its descendants.
 %
 We model the hit path set by a bipartite graph 
