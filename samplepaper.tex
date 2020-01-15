@@ -31,7 +31,7 @@
 \title{Accelerating Substructure Similarity Search for Formula Retrieval}
 \titlerunning{Accelerating Substructure Similarity Search}
 
-\author{Wei Zhong\inst{1}\textsuperscript{,\Letter}, Shaurya Rohatgi\inst{2}, Jian Wu\inst{3}, C. Lee Giles\inst{2} \and Richard Zanibbi\inst{1}\textsuperscript{,\Letter}}
+\author{Wei Zhong\inst{1}\textsuperscript{,\Letter}, Shaurya Rohatgi\inst{2}, Jian Wu\inst{3}, \\ C. Lee Giles\inst{2} \and Richard Zanibbi\inst{1}\textsuperscript{,\Letter}}
 \institute{
 Rochester Institute of Technology \\
 \email{\{wxz8033,rxzvcs\}@rit.edu}
@@ -81,26 +81,14 @@ $(a + bc) + xy$
 
 In the most recent math similarity search competition\footnote{The NTCIR-12 Wikipedia Formula Browsing Task.}, effective systems all take a tree-based approach by extracting query terms from tree representations.
 For example, an Operator Tree (OPT) is used in Figure~\ref{intro} to represent math formulas where operands are represented by leaves and operators are lifted to the internal nodes.
-This facilitates searching the common subtrees shared by two math expressions, specifically, we can index paths from their tree representations and find their shared structure by matching their common paths grouped by root-end nodes. 
-However, indexing all prefixes of leaf-root paths would result in considerable query terms in any realistic math search task. In order to carry structure information, it is common to see long queries with over tens or even hundreds of ``terms" which is unusual for text search. This makes query processing costly because many posting lists are merged for retrieval.
+This facilitates searching the common substructures shared by two math expressions, for example, we can extract paths from their tree representations and find their shared subtrees by matching their common paths grouped by root-end nodes. 
+However, in order to carry structure information, it is common to see structural queries with over tens or even hundreds of path tokens which is unusual for normal fulltext search. This makes query processing costly due to considerable query terms in any realistic math search task.
 
 In text similarity search, query processing can be accelerated through dynamic pruning~\cite{tonellotto2018efficient}, which typically estimates score upperbounds to prune documents unlikely to be in the top K results.
-
-However, effective substructure search requires additional matching or alignment among query terms, and this makes it hard to get a good score estimation thus it prevents us applying traditional dynamically pruning effectively.
+%
+However, effective substructure search requires additional matching or alignment among query terms, and this makes it hard to get a good score estimation  and it prevents us applying traditional dynamically pruning effectively.
 In fact, reportedly few state-of-the-art MIR systems have achieved practical query run times even when given a large amount of computing resources~\cite{ntcir12, mcat_16}.
-In this paper we try to address this problem by introducing a specialized inverted index and we propose a dynamic pruning method based on this specialized inverted index to boost efficiency.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{figure}[!t]
-% \begin{center}
-% \includegraphics[width=2.2in]{fig/hot-hit.eps}
-% \caption{Non-wildcards query statistics produced by a tree-based system~\cite{a0_2019} in the NTCIR-12 Wikipedia Formula Browsing Task.
-% %At left are the number of leaft-root sub-paths (query terms) produced for the 20 queries, while at right the posting list hit frequencies are shown.
-% }
-% \label{stats}
-% \end{center}
-% \end{figure}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+In this paper we try to address this problem by introducing a specialized inverted index and we propose a dynamic pruning method based on this  inverted index to boost formula retrieval efficiency.
 
 \section{Related Work}
 \label{relatedworks}
@@ -135,31 +123,31 @@ Shan et al.~\cite{Shandongdong2012} show that MaxScore variants (e.g. BMM, LBMM)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Preliminaries}
-\noindent\textbf{Baseline Model}\; This work is based on our previous work~\cite{a0_2019} which extracts prefixes from query OPT leaf-root paths as query or index terms, the OPT is parsed from a formula/expression in \LaTeX{}. For indexed paths, they are mapped to corresponding posting lists in an inverted index where the IDs of expressions containing the path are appended.
-At query time, the posting lists corresponding to query formula paths are merged and approximate matching is performed on candidates one expression at a time.
+\noindent\textbf{Baseline Model}\; This work is based on our previous work~\cite{a0_2019} which extracts prefixes from OPT leaf-root paths as index or query terms. The OPT is parsed from a formula/expression in \LaTeX{}. For indexed paths, they are mapped to corresponding posting lists in an inverted index where the IDs of expressions containing the path are appended.
+For query paths, the corresponding posting lists are merged and approximate matching is performed on candidates one expression at a time. The score is calculated from matched common subtree(s).
 
 Because math symbols are interchangeable, paths are tokenized for better recall (operand symbols such as $a, b, c$ are tokenized into VAR).
-Given Figure~\ref{intro} for example, if document expression ``bc + xy + a + z'' is indexed, its expression ID (or ExpID) will be appended to the posting lists associated with tokenized paths from its OPT representation.
-And the two common structures highlighted in green and purple can be found by matching these tokenized paths, i.e.,  VAR/TIMES, VAR/ADD and VAR/TIMES/ADD (uppercase words denote tokens, VAR is the token for variables) and group them by shared subtree root nodes (i.e., ADD and TIMES on the right side) as proposed in \cite{a0_2019}.
+Given Figure~\ref{intro} for example, if document expression ``bc + xy + a + z'' is indexed, its expression ID (or ExpID) will be appended to the posting lists associated with tokenized prefix paths from its OPT representation.
+And the two common structures highlighted in green and purple can be found by matching these tokenized paths, i.e.,  VAR/TIMES, VAR/ADD and VAR/TIMES/ADD (uppercase words denote tokens, VAR is the token for variables) and group them by shared subtree root nodes (i.e., ADD and TIMES on the right side).
 %
 In our context, two paths can match if and only if they have the same tokenized paths,
-hence ``a/+'' and ``z/+'' can be matched.
+for example, ``a/+'' and ``z/+'' can be matched.
 
-As a result, in addition to expression IDs, the posting list entry stores the root-end node IDs of indexed paths to reconstruct structure at merge time.
-At query time, the model use the size of matched common subtrees, assuming that subtrees are structurally identical only if their leaf-root paths match.
+In addition to ExpID, the posting list entry stores root-end node IDs of indexed paths in order to reconstruct structure at merge time.
+At query time, the model measures similarity score from the size of matched common subtrees, assuming that subtrees are structurally identical only if their leaf-root paths match.
+%
+Specifically, the model chooses a number of ``widest'' matched subtree(s) (e.g., $a+bc$ is the widest matched in Figure~\ref{intro} because it has 3 common leaves and is ``wider'' than the other choices) and measure formula similarity based on the size of common subtrees.
 
-The model then chooses a subset of widest matched subtree(s) (e.g., $a+bc$ is the maximum one since it has 3 common leaves and is ``wider'' than the other choices) and score similarity based on their properties (e.g. by the total number of matched nodes).
-
-The original model proposes to match as many as 3 widest common subtrees and measure similarity by summing the number of matched leaves and operators from different common subtrees $\hat{T}_q^i, \hat{T}_d^i$ of a common forest $\pi$ (assigning them different score weights $\alpha$ and $\beta$):
+The original model proposes to match as many as 3 widest common subtrees and score similarity by summing the number of matched leaves and operators from different common subtrees $\hat{T}_q^i, \hat{T}_d^i$ of a common forest $\pi$ (assigning them different score weights $\alpha$ and $\beta$):
 \begin{align}
 \label{eq:1}
-\sum_{(\hat{T}_q^i, \hat{T}_d^i) \in \pi} \beta_i \left( \alpha \left|\operatorname{internals}(\hat{T}_d^i)\right| + (1 - \alpha) \left|\operatorname{leaves}(\hat{T}_d^i)\right| \right) 
+\sum^3_{i=1} \beta_i \left( \alpha \left|\operatorname{operators}(\hat{T}_d^i)\right| + (1 - \alpha) \left|\operatorname{operands}(\hat{T}_d^i)\right| \right)\;, \qquad (\hat{T}_q^i, \hat{T}_d^i) \in \pi
 \end{align}
 
 %
 According to previous experiments in \cite{a0_2019}, interestingly, the multiple subtree matching does boost effectiveness, but matching only single widest common subtree would still produce results that outperform other systems in highly relevance metrics.
 %
-Consider only scoring based on the widest common subtree and counting its operands, the scoring can be much more simplified, and the resulting score between query and document OPTs $T_q, T_d$ is the widest matched tree width $w^*_{Q, D}$, formally
+Consider only scoring based on the widest common subtree and counting its operands, the scoring can be simplified. The resulting score between query and document OPTs $T_q, T_d$ is the widest matched tree width $w^*_{Q, D}$, formally
 \begin{align}
 \label{eq:2}
 w^*_{Q, D} = \max(|\operatorname{leaves}(\hat{T}_d)|), \quad \hat{T}_q, \hat{T}_d \in \text{CFS}(T_q, T_d)
@@ -176,19 +164,18 @@ In Figure~\ref{intro}, the value of $w^*_{Q, D}$ is 3, produced by widest common
 If it is less or equal to $\theta$, the associated document can be pruned safely because it can not make it into final results.
 Moreover, if a subset of hit posting lists alone cannot produce a top K result from their upperbounds, they are called a \textit{non-requirement set}, the opposite being the \textit{requirement set}.
 %
-Posting list in the non-requirement with IDs less than the current IDs in the requirement set can be skipped safely, because posting lists in the former set alone will not produce a top K candidate.
+Posting list in the non-requirement with IDs less than the current IDs in the requirement set can be skipped safely, because posting lists in the non-requirement set alone will not produce a top K candidate.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Methodology}
 \label{strategy}
 In this paper, we apply dynamic pruning to structural search.
-As structure search has more complex queries in general, we focus on a MaxScore-like strategy suggested by~\cite{Shandongdong2012, antonio2019}, since they do not need to sort query terms at merge iterations (it is expensive for long queries).
+As structure search has more query terms in general, we focus on a MaxScore-like strategy suggested by~\cite{Shandongdong2012, antonio2019}, since they do not need to sort query terms at merge iterations (it is expensive for long queries).
 %
-Our approach is different from the original MaxScore in the sense that upperbound scores are also calculated from the query tree representation (i.e., each node has a maximum number of leaves to be matched).
+Our approach is different from the original MaxScore in the sense that upperbound scores are also calculated from the query tree representation (i.e., each node has a maximum number of leaves can be matched).
 We also adapt simplified scoring function according to equation~(\ref{eq:2})
-where only a subset of hit terms which belong to the widest matched common subtrees $\hat{T}_q, \hat{T}_d$ contribute to the score.
+where only a subset of query terms which belong to the widest matched common subtrees $\hat{T}_q, \hat{T}_d$ contribute to the score.
 In contrast, typical TF-IDF scoring has all hit terms contribute to the ranking score.
-%this also makes our dynamical pruning strategy fundamentally different.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[!t]
@@ -200,7 +187,7 @@ In contrast, typical TF-IDF scoring has all hit terms contribute to the ranking 
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-On the merge of posting lists, a set of corresponding query paths will match a set of paths from a document expression one at a time, each time a \textit{hit path set} consisting of query paths and paths from a document are examined.
+On the merge of posting lists, a set of corresponding query paths will match a set of paths from a document expression one at a time, each time a \textit{hit path set} consisting of matched query paths and paths from a document are examined.
 %
 Define $\mathcal{P}(T)$ to be all the prefix paths we extract from OPT, i.e.,
 $\mathcal{P}(T) = \{p: p \in \operatorname{leafroot\_paths}(T^n), n \in T\}$ where $T^n$ is the entire subtree of $T$ rooted at $n$ with all its descendants.
@@ -208,7 +195,7 @@ $\mathcal{P}(T) = \{p: p \in \operatorname{leafroot\_paths}(T^n), n \in T\}$ whe
 We model the hit path set by a bipartite graph 
 $G(Q, D, E)$ where $Q = \{q: q \in \mathcal{P}(T_q)\}, D = \{d: d \in \mathcal{P}(T_d)\}$ are query and document path sets, and edge set are ordered pairs $E = \{(q, d): \operatorname{tokenized}(q) =  \operatorname{tokenized}(d), q \in Q, d \in D\}$ representing a potential matching between a query path and a document path.
 %%
-Since an edge is established when paths are of the same tokens, we can partition the graph into disconnected smaller bipartite graphs $G_t = G(Q_t, D_t, E_t)$, each is identified by tokenized query path $t$ and
+Since an edge is established only when paths are of the same tokens, we can partition the graph into disconnected smaller bipartite graphs $G_t = G(Q_t, D_t, E_t)$, each is identified by tokenized query path $t$:
 $$
 \begin{aligned}
 Q_t &= \{ q: q \in Q, \operatorname{tokenized}(q) = t\} \\
@@ -218,10 +205,9 @@ E_t &= \{(q, d): (q, d) \in E, \operatorname{tokenized}(q) = \operatorname{token
 $$
 Figure~\ref{bipart} shows the hit path set graph of the example in Figure~\ref{intro}, this example can be partitioned into disconnected smaller bipartite graphs, associated with tokenized path VAR/TIMES/ADD, VAR/TIMES and VAR/ADD.
 Each partition is actually a complete bipartite graph (fully connected) because $\forall e \in (Q_t, D_t), e \in E_t$.
-And for each complete bipartite graph $G(V_1, V_2, E)$, we can obtain their maximum matching sizes by calculating $\min(|V_1|, |V_2|)$ easily.
+And for each complete bipartite graph $G(Q_t, D_t, E)$, we can obtain their maximum matching sizes from $\min(|Q_t|, |D_t|)$ easily.
 
-On the other hand, to calculate score $w^*_{Q, D}$, we need to find a pair of query and document nodes at which the optima $\hat{T}^*_q, \hat{T}^*_d$ are rooted (see equation~\ref{eq:2}), such that it is the maximum possible common subtree.
-So we also define the matching candidate relations filtered by nodes.
+On the other hand, to calculate score $w^*_{Q, D}$, we need to find a pair of query and document nodes at which the widest common subtree $\hat{T}^*_q, \hat{T}^*_d$ are rooted (see equation~\ref{eq:2}), so we also define the matching candidate relations filtered by nodes.
 Let $G^{(m, n)} = G(Q^{(m)}, D^{(n)}, E^{(m, n)})$ be subgraph which only considers matching between query node $n$ and document node $m$  where
 $$
 \begin{aligned}
@@ -231,10 +217,10 @@ E^{(m, n)} &= \{(q, d): (q, d) \in E, \operatorname{root\_end}(q) = m, \operator
 \end{aligned}
 $$
 
-Because we only need to know the maximum matched subtree width, we can calculate the score of each pair of nodes independently by summing its maximum matching size among partitions and the maximum pair of nodes matching is essentially our interested similarity score $w^*_{Q, D}$.
+Because we only need to know the maximum matched subtree width, we can calculate the score of each pair of nodes independently by summing its maximum matching size among partitions and the maximum  matching pair of nodes is essentially our interested similarity score $w^*_{Q, D}$.
 Specifically,
 %
-define \textit{token paths} of node $n$ in its tree $T$ as set $\mathfrak{T}(n) = \{t: t = \operatorname{tokenized}(p), p \in \operatorname{leafroot\_paths}(T^n) \}$, it follows
+define \textit{token paths} of tree $T$ rooted at $n$ as set $\mathfrak{T}(n) = \{t: t = \operatorname{tokenized}(p), p \in \operatorname{leafroot\_paths}(T^n) \}$, it follows
 \begin{align}
 w^*_{Q, D} &= \max_{m \in T_q, n \in T_d} \; \nu(G^{(m, n)}) \\
            &= \max_{m \in T_q, n \in T_d} \sum_{t \in \mathfrak{T}(m)} \nu(G^{(m, n)}_t) \\
@@ -243,12 +229,9 @@ w^*_{Q, D} &= \max_{m \in T_q, n \in T_d} \; \nu(G^{(m, n)}) \\
 \end{align}
 where $\nu(G)$ is the maximum matching size of bipartite graph $G$.
 
-% And in MaxScore pruning~\cite{jonassen_simon_2011}, the upperbound can be calculated by summing already evaluated partial scores and the (precomputed) accumulated TF-IDF upperbound scores for the rest of the terms.
-%
-%In our case, $\min(|Q^{(m)}_t|, |D^{(n)}_t|)$ can be defined as partial score, however, our stated structure similarity needs to sum and obtain ``node scores'' and only select the maximum of them.
-%%
-Denote $w_{m, t} = |Q^{(m)}_t|$, we call $w_{m, t} \ge \min(|Q^{(m)}_t|, |D^{(n)}_t|)$ as a (precomputed) partial score upperbound in our model.
-It is analogous to text search where each posting list has a partial score upperbound, the TF-IDF score upperbound is merely sum of them, while in our case we have to sum and only select the maximum of them (we will show this is a great advantage since we can drop posting lists at merge time to reduce our typically large number of posting lists).
+Denote $w_{m, t} = |Q^{(m)}_t|$, we call $w_{m, t} \ge \min(|Q^{(m)}_t|, |D^{(n)}_t|)$ as our (precomputed) partial score upperbound.
+It is analogous to text search where each posting list has a partial score upperbound, the TF-IDF score upperbound is merely sum of them. While in our case we have to sum and only select the maximum of them.
+%(we will show that this is an advantage because we can potentially drop some posting lists completely at merge time to improve efficiency).
 
 In the following we propose three strategies to compute overall similarity upperbound from partial score upperbounds and assign non-requirement set.
 
