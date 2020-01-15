@@ -572,7 +572,7 @@ Experiment consists of five independent runs for each system and we take the res
 Table~\ref{majortab} reports run time statistics of different strategies.
 Non-pruning (exhaustive search) baselines with K = 100 are also compared here.
 Almost consistently, GBP-LEN strategy achieves the best efficiency with smaller variance.
-This is expected since GBP-LEN objective function models the skipping possibility better than GBP-NUM, although GBP-NUM gives a tighter theoretic upperbound than MaxRef, it only maximizes the number (instead of the size) of posting lists in the non-requirement set, and may lead to bad performance when these posting lists are short.
+This is expected since GBP-LEN objective function models the skipping possibility better than GBP-NUM. Although GBP-NUM gives a tighter theoretic upperbound than MaxRef, it only maximizes the number of posting lists in non-requirement set, and may lead to bad performance when these posting lists are short.
 
 There are a few times the best minimal run times are led by other strategies, for those with meaningful gaps, i.e., in Wiki dataset of non-wildcard queries when K = 1000, MaxRef outperforms in standard deviation and maximum run time to a notable margin; however, it is likely results from small threshold due to large K so that the efficiency on a small sized NTCIR dataset is less affected by pruning (small $\theta$ means less pruning potential) compared to the time complexity added from assigning requirement set, the latter is more significant in GBP runs. In wildcard queries, however, many expressions can match the query thus threshold value is expected to be larger than that in non-wildcard case.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -613,7 +613,7 @@ There are a few times the best minimal run times are led by other strategies, fo
 }
 
 \caption{Bpref~\cite{buckley2004retrieval} scores (on the left) and average run times (on the right) compared with other formula search systems on NTCIR-12 Wiki dataset where K = 1000.
-(Bpref measure is chosen here because we did not participate in NTCIR-12 and contribute to the pooling, and Bpref scores only considers judged documents).
+(Bpref measurement is chosen here because we did not participate in NTCIR-12 and contribute to the pooling, and Bpref scores only considers judged documents).
 }
 \label{boxplot}
 \end{center}
@@ -621,16 +621,15 @@ There are a few times the best minimal run times are led by other strategies, fo
 \end{figure*}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Secondly, we have compared our system effectiveness and efficiency with Tangent-S~\cite{tangent-combine2017}, MCAT~\cite{mcat_16} and our baseline system without pruning~\cite{a0_2019} systems (see Figure~\ref{boxplot}), all of which are also structure-based formula search engines and they have obtained the best published Bpref scores on NTCIR-12 dataset.
+Secondly, we have compared our system effectiveness and efficiency with Tangent-S~\cite{tangent-combine2017}, MCAT~\cite{mcat_16} and our baseline system without pruning~\cite{a0_2019} (see Figure~\ref{boxplot}), all of which are also structure-based formula search engines and they have obtained the best published Bpref scores on NTCIR-12 dataset.
 In addition, ICST system~\cite{peking2016} also obtains effective results for math and text mixed task, but they do training on previous Wiki dataset and their system is currently not available.
 
-All compared systems are evaluated on the same host in a single thread for top-1000 results.
-% The computational environment is: Intel Core i5 @ 3.60GHz per core, 16 GB memory and SSD hard drive.
+All compared systems are evaluated on the same host\footnote{Environment: Intel Core i5 @ 3.60GHz per core, 16 GB memory and SSD hard drive.} in a single thread for top-1000 results.
 %
 We use our best performance strategy, i.e., GBP-LEN, having an on-disk version with posting lists uncompressed and always read from disk, and an in-memory version with compression.
 %
 For baseline system, only 20 non-wildcard queries are reported because it does not support wildcard query.
-We compare baseline best performed run (base-best) which uses costly multiple tree matching and its specialized version (base-opd-only) which is comparable to our system because its scoring only considers single best matched tree width (see equation~\ref{eq:2}).
+We compare baseline best performed run (base-best) which uses costly multiple tree matching as well as its specialized version (base-opd-only) which is comparable to our system because its scoring only considers single best matched tree width (see equation~\ref{eq:2}).
 %
 Tangent-S has a few significant outliers as a result of its costly alignment algorithm to rerank structure and find the Maximum Subtree Similarity~\cite{tangent-multistage2016}, its non-linear complexity makes it expensive for some long queries (especially in wildcard case).
 %
@@ -638,13 +637,11 @@ And MCAT reportedly has a median query execution time around 25 seconds, using a
 So we remove Tangent-S significant outliers and MCAT from runtime boxplot.
 To save space, we only include the faster run base-opd-only from baseline.
 
-As our results suggest, we outperform Tangent-S in efficiency even if we exclude their outlier queries, with higher Bpref in non-wildcards fully relevant results. Our efficiency is also better than baseline even if it only considers less complex non-wildcard queries.
+As our results suggest, we outperform Tangent-S in efficiency even if we exclude their outlier queries, with higher Bpref in non-wildcards fully relevant results. Our efficiency is also better than baseline even if the latter only considers less complex non-wildcard queries.
 %
 However, our overall effectiveness is skewed by bad performance of wildcard queries because a much more expensive phase is introduced to boost accuracy by other systems to handle inherently difficult ``structrual wildcards''.
-We think it is still an open problem to handle structure wildcard queries effectively in real time.
 
 Our pruning strategies are rank-safe (pruning and exhaustive version shows the same Bpref scores) but there is a minor Bpref difference between ours and baseline (base-opd-only) due to parser changes we have applied to support wildcards (e.g., handle single left brace array as seen in a wildcard query) and they happen to slightly improve accuracy in partially relevant cases.
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{figure}[]
@@ -656,17 +653,9 @@ Our pruning strategies are rank-safe (pruning and exhaustive version shows the s
 % \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Lastly, we have evaluated the impact of initial thresholds, we use GBP-LEN to examine query run times and effectiveness in Bprefs affected by increasing initial threshold factor.
-% %
-% Results shown in Figure \ref{thresholds} verifies our assumption that small initial threshold factor is unlikely to affect effectiveness in structure similarity search.
-% Although partial relevance scores are a little undulate, it only decreases notably after the initial threshold factor goes beyond 0.3.
-% Full relevance line has the same pivot before starting to plunge, however, it stays almost unaffected by initial thresholds until the pivot.
-% Although being simple, initial threshold can be used to achieve faster query time with low risk of sacrificed high structural relevance.
-
 \section{Conclusion}
 We have presented rank-safe dynamic pruning strategies that produce an upperbound estimation of structural similarity in order to speedup formula search using subtree matching.
 Our dynamic pruning strategies and specialized inverted index are different from traditional linear text search pruning methods and they further associates query structural representation with posting lists.
-% We evaluate our query merge times of different strategies, and compare ours with the most effective systems on the NTCIR-12 Wikipedia Formula Browsing Task.
 Our results show we can obtain substantial improvement in efficiency over the baseline model, while still generating highly relevant non-wildcard search results.
 Using our approach, we can process a diverse set of structural queries in real time.
 % ---- Bibliography ----
