@@ -334,24 +334,23 @@ Therefore at implementation we just greedily follow one branch of the binary pro
 
 Figure ~\ref{figillu} illustrates our query processing and modified inverted index for dynamic pruning of formula search.
 For each internal node $m$ of the query OPT, we store the number of leaves of $m$  as $w_m = |Q^{(m)}|$, the two numbers are denoted by $m/w_m$.
-Each query node refers to one or more tokenized path entries in a dictionary,
-where each reference is associated with $Q^{(m)}_t$ identified by query $m$ and tokenized path $t$.
+Each query node points to one or more tokenized path entries in a  path dictionary,
+where each reference is associated with $w_{m,t} = |Q^{(m)}_t|$ identified by its tokenized path $t$.
 %
 In Figure~\ref{figillu}, node $q1$ from the query has 6 leaves, which is also the upperbound number of path matches for $q1$, i.e, $|Q^{(1)}|$.
 Since $q1$ consists of 2 tokenized leaf-root paths VAR/TIMES/ADD and VAR/ADD,
-$q1$ is linked to two posting lists, each associated with a partial upperbound $w_{m, t} = |Q^{(m)}_t|$.
+$q1$ is linked to two posting lists, each associated with a partial upperbound (5 and 1).
 
-Each posting list corresponds to a token path $t \in \mathfrak{T}$ and has one dynamic reference counter indicating the number of query nodes referring to it (initially $|Q_t|$).
+Each posting list corresponds to a token path $t \in \mathfrak{T}$ and has a dynamic reference counter indicating the number of query nodes referring to it (initially $|Q_t|$).
 As query nodes can be pruned by our algorithm (when its width is no longer greater than the current threshold, the corresponding subexpression cannot make it into top-K results),
-the reference counter may decrease, and the posting list gets removed if its reference counter is less than one.
-%The greatest $w$ value of all LSSs by which a posting list (or path entry) gets referenced is the \emph{MaxRef} (however, \emph{MaxRef} is not used when we use GBP strategies).
-%In our implementation, we do not directly manipulate posting lists, instead, they are represented by \textit{iterators}  which store independent copies of current merging state (e.g., current ExpID) to allow reentrant reading.
-For ease of testing termination, we append a very large ExpID \emph{MaxID} at the end, this special ID is greater than any ExpID of real document expression.
+the reference counter may decrease, and the posting list gets removed in our model if its reference counter is less than one.
 %
-Each posting list entry identified by an ExpID stores $n, |D^{(n)}_t|$ values extracted from document subtree token path $t$ rooted at $n$.
+For ease of testing termination, we append a very large ExpID \emph{MaxID} at the end of posting list, this special ID is greater than any ExpID of real document expression.
+%
+Each posting list entry identified by an ExpID stores $n$ and $w_{n,t} = |D^{(n)}_t|$ values (denoted as $n/w_n$ of $t$) of subtree token path $t$ rooted at $n$ in document.
 
-As an example, in Figure~\ref{figillu}, the hit OPT shown at right (of ExpID 12) has 5 paths tokenized as VAR/TIMES/ADD, 2 on the left rooted by $d4$ and 3 on the right rooted by $d1$. The information ($d1/3, d4/2$) are stored with the corresponding posing list.
-In our implementation, each posting list is traversed by an iterator ($iters[t]$), and its entry information (denoted as $n/w_n$) are read by $iters[t].read()$ function from current position accessed by iterator.
+As an example, in Figure~\ref{figillu}, the hit OPT shown at right (of ExpID 12) has 5 paths tokenized as $t =$ VAR/TIMES/ADD, 2 on the left rooted by $d4$ and 3 on the right rooted by $d1$. The information ($d1/3, d4/2$) are stored with the corresponding posing list $t$.
+In our implementation, each posting list is traversed by an iterator ($iters[t]$), and its entry are read by $iters[t].read()$ function from current position accessed by iterator.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure*}[!t]
@@ -382,7 +381,8 @@ In our implementation, each posting list is traversed by an iterator ($iters[t]$
  			\State nodeMatch[$n$] := nodeMatch[$n$] + min($w_m$, $w_n$)
  		\EndFor
 		\EndIf
-		\State $\ell$ := $\ell - w_m$; estimate := max(nodeMatch) + $\ell$ 
+		\State $\ell$ := $\ell - w_m$;
+		\State estimate := max(nodeMatch) + $\ell$ 
 		\Comment{Update estimation.}
 		\If {estimate $\le$ widest \textbf{or} $u$(estimate) $\le \theta$}
 			\State \Return 0
@@ -442,10 +442,10 @@ The \Call{RequirementSet}{} returns selected iterators of the requirement set (c
 The assignment according to different pruning strategies is described in Section~\ref{strategy}.
 %
 In MaxRef strategy, we sort posting lists in descending order of their $\text{MaxRef}$ values, and take as many posting lists into non-requirement set from lowest $\text{MaxRef}$ value.
-At merging, a \textit{candidate} is selected from the hit posting lists of the requirement set which have the minimal ExpID.
+At merging, a \textit{candidate} of minimal ExpID is identified from the hit posting lists of the requirement set.
 Requirement set iterators are advanced one by one using \textit{next()} function, while iterators in the non-requirement set are advancing directly to the ID equal to or greater than the current candidate using \textit{skipTo()} function. In Figure~\ref{figillu} for example, the posting list corresponding to VAR/TIMES/ADD is in the requirement set under the MaxRef strategy, while the other two are not: Document expression 13 and 15 will be skipped if the next candidate is 90.
 
-At each iteration, a set of \textit{hitNodes} is inferred containing query nodes associated with hit posting lists (i.e., those current ExpIDs are candidate IDs).
+At each iteration, a set of \textit{hitNodes} is inferred containing query nodes associated with posting lists whose current ExpIDs are candidate ID.
 \Call{qryNodeMatch}{} calculates the match of each hit node according to equation~\ref{eq:5}, pruning those nodes whose maximum matching size will be smaller than the matched size of any already calculated node.
 %
 Given query hit node $q1$ in Figure~\ref{figillu}, function \Call{qryNodeMatch}{} returns value of
