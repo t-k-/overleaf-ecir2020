@@ -237,11 +237,11 @@ In the following we propose three strategies to compute overall similarity upper
 
 \vspace{0.1in}
 \noindent \textbf{Max reference (MaxRef) strategy}\;
-In MaxScore~\cite{turtle_flood_1995, strohman_turtle_2005}, each posting list can be mapped to a partial score upperbound directly, however, our scoring function implies each posting list can be involved with multiple partial score upperbounds.
-One simple way to select the non-requirement set in our case is to provide an upperbound score \emph{MaxRef} (for each posting list $t$) which is the maximum partial score from the query nodes by which this posting list gets ``referenced'', and if a set of posting lists alone has a sum of MaxRef scores less or equal to $\theta$, they can be safely put into the non-requirement set.
+In MaxScore~\cite{turtle_flood_1995, strohman_turtle_2005}, each posting list has a partial score upperbound, however, our scoring function implies each posting list can be involved with multiple partial score upperbounds.
+One way to select the non-requirement set in our case is using an upperbound score $MaxRef_t$ (for each posting list $t$) which is the maximum partial score from the query nodes by which this posting list gets ``referenced'', and if a set of posting lists alone has a sum of MaxRef scores less or equal to $\theta$, they can be safely put into the non-requirement set.
 
-The rank safety can be justified, since each posting list corresponds to a unique tokenized path $t$, define $\text{MaxRef}_t = \max_m w_{m, t}$,
-$\forall\; m \in T_q, n \in T_d$,
+The rank safety can be justified, since each posting list corresponds to a unique tokenized path $t$, and $\text{MaxRef}_t = \max_m w_{m, t}$,
+for $m \in T_q, n \in T_d$,
 \begin{align}
 \label{eq:6}
 \sum_t \min(|Q^{(m)}_t|, |D^{(n)}_t|) \le \sum_t w_{m,t} \le \sum_t \text{MaxRef}_t
@@ -302,7 +302,7 @@ follows $w^*_{Q, D} \le \theta$ for all non-requirement set posting lists.
 % \end{algorithmic}
 % \end{algorithm}
 %
-Inequality~(\ref{eq:6}) is relaxed twice, so it spurs the motivation to get tighter upperbound value by maximizing posting lists in non-requirement set (so that more posting lists are likely to be advanced directly).
+Inequality~(\ref{eq:6}) is relaxed twice, so it spurs the motivation to get tighter upperbound value by maximizing posting lists in non-requirement set (so that more posting lists are likely to be skipped).
 Define partial upperbound matrix $\mathbf{W} = \{ w_{i, j} \}_{|T_q| \times |\mathfrak{T}|} $ where $\mathfrak{T} = \{ \mathfrak{T}(m), m \in T_q \}$ are all the token paths from query OPT ($\mathfrak{T}$ is essentially the same as tokenized $\mathcal{P}(T_q)$), and a binary variable $\boldsymbol{x}_{|\mathfrak{T}| \times 1}$ indicating which corresponding posting lists are taken into non-requirement set.
 One heuristic objective is to maximize the number of posting lists in non-requirement set (we call this strategy GBP-NUM):
 \begin{align}
@@ -326,22 +326,7 @@ since constraints in inequalities~(\ref{eq:7}) demands $\sum_{t \in \textbf{Skip
 
 Both binary programming strategies require solving binary programming problem which is known to be NP-complete thus too heavy to run for long queries.
 Therefore at implementation we just greedily follow one branch of the binary programming sub-problems to get a greedy solution running in $O(|T_q| |\mathfrak{T}|^2)$.
-Greedy solutions also meet these constraints, thus it is still rank-safe.
-%the local optimal may not maximize objective function~(\ref{eq:obj}) but still satisfy constraints~(\ref{eq:7}).
-
-% \subsection{Initial threshold}
-% In addition to pruning strategies above, we define an \textit{initial threshold} (static value), requiring a minimal score for any hit to make it into the top K.
-% We multiply the query formula size by a \textit{threshold factor} ($\in [0, 0.5]$) as initial threshold $\theta_0$.
-% If initial threshold is set to zero, it is rank-safe pruning, otherwise it further boosts efficiency by allowing more pruning possibilities.
-% %
-% The motivation for this strategy, especially in structural search, is the size difference between query and document OPTs makes a significant impact to similarity,
-% unlike TF-IDF scoring where the impact of matched terms depends on both frequency and rareness, a long query can still be relevant to document with single term as long as that term is rare, however, in our case the similarity score is measured by common structure size, it is much unlikely that a large OPT query will make a small matched document OPT into top K results.
-
-
-
-
-
-
+%Greedy solutions also meet these constraints, thus it is still rank-safe.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Implementation}
