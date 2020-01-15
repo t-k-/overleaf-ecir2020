@@ -400,7 +400,7 @@ In our implementation, each posting list is traversed by an iterator ($iters[t]$
             \Comment{Search terminated, return results.}
 			\State \Return top K results
 		\EndIf
-		\State Let $G(Q, D, E)$ be the path set bipartite graph.
+		\State Let $G(Q, D, E)$ be the hit path set bipartite graph.
 		\State widest := 0; hitNodes := $\{\operatorname{root\_end}(q): (q, d) \in E \}$
 		\For {$m$ in hitNodes}
             \Comment{Calculate maximum match for each hit query node.}
@@ -460,7 +460,7 @@ u(w) = \frac{w}{|\text{leaves}(T_q)| + w} \left[ (1 - \eta) + \eta \, \frac 1 {\
 \end{equation}
 where in our setting,  parameters $\eta = 0.05, n_d = 1$.
 
-Whenever threshold $\theta$ is updated, we will examine all the query nodes, if a query node $m$ has an upperbound less or equal to threshold, i.e., $u(m) \le \theta$, then the corresponding subtree of this node is too ``small'' to make it into top K results, so we will drop these small nodes. As a result, some of the posting lists (or iterators) may also be dropped due to zero reference.
+Whenever threshold $\theta$ is updated, we will examine all the query nodes, if a query node $m$ has an upperbound less or equal to threshold, i.e., $u(m) \le \theta$, then the corresponding subtree of this node is too ``small'' to make it into top K results. As a result, some of the posting lists (or iterators) may also be dropped due to zero reference.
 
 \section{Evaluation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
