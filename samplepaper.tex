@@ -137,10 +137,10 @@ At query time, the model measures similarity score from the size of matched comm
 %
 Specifically, the model chooses a number of ``widest'' matched subtree(s) (e.g., $a+bc$ is the widest matched in Figure~\ref{intro} because it has 3 common leaves and is ``wider'' than the other choices) and measure formula similarity based on the size of common subtrees.
 
-The original model proposes to match as many as 3 widest common subtrees and score similarity by summing the number of matched leaves and operators from different common subtrees $\hat{T}_q^i, \hat{T}_d^i$ of a common forest $\pi$ (assigning them different score weights $\alpha$ and $\beta$):
+The original model proposes to match as many as 3 widest common subtrees and score similarity by summing the number of matched leaves (operands) and operators from different common subtrees $\hat{T}_q^i, \hat{T}_d^i$ of a common forest $\pi$ and assigning them different score weights $\alpha$ and $\beta$ (we use notation $|\cdot|$ to indicate the number of elements):
 \begin{align}
 \label{eq:1}
-\sum^3_{i=1} \beta_i \left( \alpha \left|\operatorname{operators}(\hat{T}_d^i)\right| + (1 - \alpha) \left|\operatorname{operands}(\hat{T}_d^i)\right| \right)\;, \qquad (\hat{T}_q^i, \hat{T}_d^i) \in \pi
+\sum^3_{i=1} \beta_i \left( \alpha \cdot \left|\operatorname{operators}(\hat{T}_d^i)\right| + (1 - \alpha) \cdot \left|\operatorname{leaves}(\hat{T}_d^i)\right| \right)\;, \qquad (\hat{T}_q^i, \hat{T}_d^i) \in \pi
 \end{align}
 
 %
@@ -149,7 +149,7 @@ According to previous experiments in \cite{a0_2019}, interestingly, the multiple
 Consider only scoring based on the widest common subtree and counting its operands, the scoring can be simplified. The resulting score between query and document OPTs $T_q, T_d$ is the widest matched tree width $w^*_{Q, D}$, formally
 \begin{align}
 \label{eq:2}
-w^*_{Q, D} = \max(|\operatorname{leaves}(\hat{T}_d)|), \quad \hat{T}_q, \hat{T}_d \in \text{CFS}(T_q, T_d)
+w^*_{Q, D} = \max_{\hat{T}_q, \hat{T}_d \in \text{CFS}(T_q,T_d)}(|\operatorname{leaves}(\hat{T}_d)|)
 \end{align}
 where
 $\text{CFS}(T_q, T_d)$ are all the \textit{common formula subtrees} between query and document OPTs $T_q$ and $T_d$.
