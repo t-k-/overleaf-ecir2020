@@ -152,7 +152,7 @@ Consider only scoring based on the widest common subtree and counting its operan
 w^*_{Q, D} = \max(|\operatorname{leaves}(\hat{T}_d)|), \quad \hat{T}_q, \hat{T}_d \in \text{CFS}(T_q, T_d)
 \end{align}
 where
-$\text{CFS}(T_q, T_d)$ are all the \textit{common formula subtrees} between $T_q$ and $T_d$.
+$\text{CFS}(T_q, T_d)$ are all the \textit{common formula subtrees} between query and document OPTs $T_q$ and $T_d$.
 In addition to general subtree isomorphism definition, a formula subtree requires leaves in a subtree to be also mapped to leaves in the counterpart, in other words, the subtree is matched bottom-up.
 %
 In Figure~\ref{intro}, the value of $w^*_{Q, D}$ is 3, produced by widest common subtrees highlighted in green.
@@ -179,7 +179,7 @@ In contrast, typical TF-IDF scoring has all hit terms contribute to the ranking 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[!t]
 \begin{center}
-\includegraphics[width=1.84in]{fig/bipartile.eps}
+\includegraphics[width=1.90in]{fig/bipartile.eps}
 \caption{Bipartite graph of hit path set for formulas in Figure~\ref{intro} (original leaf symbol is used here to help identify paths). Edges are established if paths from the two sides are the same after tokenization. Edges with shared end points (i.e., same root-end nodes) in original OPTs have the same color. }
 \label{bipart}
 \end{center}
@@ -343,11 +343,11 @@ $q1$ is linked to two posting lists, each associated with a partial upperbound (
 Each posting list corresponds to a token path $t \in \mathfrak{T}$ and has a dynamic reference counter indicating the number of query nodes referring to it (initially $|Q_t|$).
 As query nodes can be pruned by our algorithm (when its width is no longer greater than the current threshold, the corresponding subexpression cannot make it into top-K results),
 the reference counter may decrease, and the posting list gets removed in our model if its reference counter is less than one.
-%
+% 
 For ease of testing termination, we append a very large ExpID \emph{MaxID} at the end of posting list, this special ID is greater than any ExpID of real document expression.
-%
-Each posting list entry identified by an ExpID stores $n$ and $w_{n,t} = |D^{(n)}_t|$ values (denoted as $n/w_n$ of $t$) of subtree token path $t$ rooted at $n$ in document.
 
+Each posting list entry identified by an ExpID stores $n$ and $w_{n,t} = |D^{(n)}_t|$ values (denoted as $n/w_n$ of $t$) of subtree token path $t$ rooted at $n$ in document.
+%
 As an example, in Figure~\ref{figillu}, the hit OPT shown at right (of ExpID 12) has 5 paths tokenized as $t =$ VAR/TIMES/ADD, 2 on the left rooted by $d4$ and 3 on the right rooted by $d1$. The information ($d1/3, d4/2$) are stored with the corresponding posing list $t$.
 In our implementation, each posting list is traversed by an iterator ($iters[t]$), and its entry are read by $iters[t].read()$ function from current position accessed by iterator.
 
@@ -573,7 +573,7 @@ Non-pruning (exhaustive search) baselines with K = 100 are also compared here.
 Almost consistently, GBP-LEN strategy achieves the best efficiency with smaller variance.
 This is expected since GBP-LEN objective function models the skipping possibility better than GBP-NUM. Although GBP-NUM gives a tighter theoretic upperbound than MaxRef, it only maximizes the number of posting lists in non-requirement set, and may lead to bad performance when these posting lists are short.
 
-There are a few times the best minimal run times are led by other strategies, for those with meaningful gaps, i.e., in Wiki dataset of non-wildcard queries when K = 1000, MaxRef outperforms in standard deviation and maximum run time to a notable margin; however, it is likely results from small threshold due to large K so that the efficiency on a small sized NTCIR dataset is less affected by pruning (small $\theta$ means less pruning potential) compared to the time complexity added from assigning requirement set, the latter is more significant in GBP runs. In wildcard queries, however, many expressions can match the query thus threshold value is expected to be larger than that in non-wildcard case.
+There are a few times the best minimal run times are led by other strategies, for those with meaningful gaps, i.e., in Wiki dataset of non-wildcard queries when K = 1000, MaxRef outperforms in standard deviation and maximum run time to a notable margin; however, it is likely results from small threshold due to large K so that the efficiency on a small sized NTCIR dataset is less affected by pruning (small $\theta$ means less pruning potential) compared to the time complexity added from assigning requirement set, the latter is more dominant in GBP runs. In wildcard queries, however, many expressions can match the query thus threshold value is expected to be larger than that in non-wildcard case.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure*}[!t]
 \begin{center}
@@ -623,17 +623,17 @@ There are a few times the best minimal run times are led by other strategies, fo
 Secondly, we have compared our system effectiveness and efficiency with Tangent-S~\cite{tangent-combine2017}, MCAT~\cite{mcat_16} and our baseline system without pruning~\cite{a0_2019} (see Figure~\ref{boxplot}), all of which are also structure-based formula search engines and they have obtained the best published Bpref scores on NTCIR-12 dataset.
 In addition, ICST system~\cite{peking2016} also obtains effective results for math and text mixed task, but they do training on previous Wiki dataset and their system is currently not available.
 
-All compared systems are evaluated on the same host\footnote{Environment: Intel Core i5 @ 3.60GHz per core, 16 GB memory and SSD hard drive.} in a single thread for top-1000 results.
+All compared systems are evaluated on the same host\footnote{Environment: Intel Core i5 @ 3.60GHz per core, 16 GB memory and SSD drive.} in a single thread for top-1000 results.
 %
 We use our best performance strategy, i.e., GBP-LEN, having an on-disk version with posting lists uncompressed and always read from disk, and an in-memory version with compression.
 %
 For baseline system, only 20 non-wildcard queries are reported because it does not support wildcard query.
 We compare baseline best performed run (base-best) which uses costly multiple tree matching as well as its specialized version (base-opd-only) which is comparable to our system because its scoring only considers single best matched tree width (see equation~\ref{eq:2}).
 %
-Tangent-S has a few significant outliers as a result of its costly alignment algorithm to rerank structure and find the Maximum Subtree Similarity~\cite{tangent-multistage2016}, its non-linear complexity makes it expensive for some long queries (especially in wildcard case).
+Tangent-S has a few outliers as a result of its costly alignment algorithm to rerank structure and find the Maximum Subtree Similarity~\cite{tangent-multistage2016}, its non-linear complexity makes it expensive for some long queries (especially in wildcard case).
 %
 And MCAT reportedly has a median query execution time around 25 seconds, using a server machine and multi-threading~\cite{mcat_16}.
-So we remove Tangent-S significant outliers and MCAT from runtime boxplot.
+So we remove Tangent-S outliers and MCAT from runtime boxplot.
 To save space, we only include the faster run base-opd-only from baseline.
 
 As our results suggest, we outperform Tangent-S in efficiency even if we exclude their outlier queries, with higher Bpref in non-wildcards fully relevant results. Our efficiency is also better than baseline even if the latter only considers less complex non-wildcard queries.
