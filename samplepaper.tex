@@ -371,10 +371,10 @@ In our implementation, each posting list is traversed by an iterator ($iters[t]$
 	\Comment{$\ell$ is the leftover estimated upperbound.}
  	\For {each $m/w_m$ of tokenized path $t$ rooted at $m$}
  	    \State Let $i$ be the iterator index associated with $t$
-		\If {iters[$i$].docID $<$ candidate}
+		\If {iters[$i$].expID $<$ candidate}
 			\State iters[$i$].skipTo(candidate)
 		\EndIf
-		\If {iters[$i$].docID $=$ candidate }
+		\If {iters[$i$].expID $=$ candidate }
 		\For {each $n/w_n \;\text{of}\; t$ from iters[$i$].read() }
  			\State nodeMatch[$n$] := nodeMatch[$n$] + min($w_m$, $w_n$)
  		\EndFor
@@ -425,7 +425,7 @@ In our implementation, each posting list is traversed by an iterator ($iters[t]$
 
 		\For {iters[$i$] in reqs}
             \Comment{Advance posting list iterators.}
-			\If {iters[$i$].docID = candidate}
+			\If {iters[$i$].expID = candidate}
 				iters[$i$].next()
 			\EndIf
 		\EndFor
@@ -440,7 +440,7 @@ The \Call{RequirementSet}{} returns selected iterators of the requirement set (c
 The assignment according to different pruning strategies is described in Section~\ref{strategy}.
 %
 In MaxRef strategy, we sort posting lists in descending order of their $\text{MaxRef}$ values, and take as many posting lists into non-requirement set from lowest $\text{MaxRef}$ value.
-At merging, a \textit{candidate} of minimal ExpID is identified from the hit posting lists of the requirement set.
+At merging, a \textit{candidate} ID is identified by assigning the minimal ExpID of current posting list iterators in the requirement set.
 Requirement set iterators are advanced one by one using \textit{next()} function, while iterators in the non-requirement set are advancing directly to the ID equal to or greater than the current candidate using \textit{skipTo()} function. In Figure~\ref{figillu} for example, the posting list corresponding to VAR/TIMES/ADD is in the requirement set under the MaxRef strategy, while the other two are not: Document expression 13 and 15 will be skipped if the next candidate is 90.
 
 At each iteration, a set of \textit{hitNodes} is inferred containing query nodes associated with posting lists whose current ExpIDs are candidate ID.
