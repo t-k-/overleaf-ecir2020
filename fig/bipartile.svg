@@ -35,9 +35,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.35000001"
-     inkscape:cx="-884.59022"
-     inkscape:cy="198.97524"
+     inkscape:zoom="0.70000002"
+     inkscape:cx="349.82501"
+     inkscape:cy="681.50915"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -60,7 +60,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -163,12 +163,12 @@
       </g>
     </g>
     <ellipse
-       style="fill:none;fill-opacity:1;stroke:#8d8d8d;stroke-width:1.95446575;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.66153846"
+       style="fill:none;fill-opacity:1;stroke:#8d8d8d;stroke-width:1.97013366;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.66153846"
        id="path4583-3"
-       cx="97.159294"
-       cy="109.78785"
-       rx="95.311623"
-       ry="163.18848" />
+       cx="98.482208"
+       cy="115.07952"
+       rx="96.626709"
+       ry="163.55861" />
     <g
        transform="matrix(0.35252285,0,0,0.35252285,29.280799,64.850354)"
        class="graph"
@@ -263,14 +263,14 @@
       </g>
     </g>
     <g
-       transform="matrix(0.35232499,0,0,0.35232499,42.383209,106.13106)"
+       transform="matrix(0.35232499,0,0,0.35232499,29.816149,107.17791)"
        class="graph"
        id="graph0-7">
       <title
          id="title6138">G</title>
       <polygon
          id="polygon6140"
-         points="245.3209,-61.9828 245.3209,4 -4,4 -4,-61.9828 "
+         points="-4,-61.9828 245.3209,-61.9828 245.3209,4 -4,4 "
          stroke="transparent"
          style="fill:#ffffff" />
       <!-- leaf -->
@@ -281,7 +281,7 @@
            id="title6142">leaf</title>
         <polygon
            id="polygon6144"
-           points="0,-8.4914 54,-8.4914 54,-49.4914 0,-49.4914 "
+           points="0,-49.4914 0,-8.4914 54,-8.4914 54,-49.4914 "
            style="fill:none;stroke:#000000;stroke-width:4" />
         <text
            id="text6146"
@@ -324,14 +324,14 @@
       </g>
     </g>
     <g
-       transform="matrix(0.35232499,0,0,0.35232499,42.516099,146.8654)"
+       transform="matrix(0.35232499,0,0,0.35232499,29.816149,149.51124)"
        class="graph"
        id="graph0-8">
       <title
          id="title6184">G</title>
       <polygon
          id="polygon6186"
-         points="245.3209,-61.9828 245.3209,4 -4,4 -4,-61.9828 "
+         points="-4,-61.9828 245.3209,-61.9828 245.3209,4 -4,4 "
          stroke="transparent"
          style="fill:#ffffff" />
       <!-- leaf -->
@@ -342,7 +342,7 @@
            id="title6188">leaf</title>
         <polygon
            id="polygon6190"
-           points="0,-8.4914 54,-8.4914 54,-49.4914 0,-49.4914 "
+           points="0,-49.4914 0,-8.4914 54,-8.4914 54,-49.4914 "
            style="fill:none;stroke:#000000;stroke-width:4" />
         <text
            id="text6192"
@@ -385,14 +385,14 @@
       </g>
     </g>
     <g
-       transform="matrix(0.35282725,0,0,0.35282725,42.547861,189.2133)"
+       transform="matrix(0.35282725,0,0,0.35282725,29.847911,191.85914)"
        class="graph"
        id="graph0-89">
       <title
          id="title6230">G</title>
       <polygon
          id="polygon6232"
-         points="209.9655,-61.9828 209.9655,4 -4,4 -4,-61.9828 "
+         points="-4,-61.9828 209.9655,-61.9828 209.9655,4 -4,4 "
          stroke="transparent"
          style="fill:#ffffff" />
       <!-- leaf -->
@@ -403,7 +403,7 @@
            id="title6234">leaf</title>
         <polygon
            id="polygon6236"
-           points="0,-8.4914 54,-8.4914 54,-49.4914 0,-49.4914 "
+           points="0,-49.4914 0,-8.4914 54,-8.4914 54,-49.4914 "
            style="fill:none;stroke:#000000;stroke-width:4" />
         <text
            id="text6238"
@@ -446,14 +446,14 @@
       </g>
     </g>
     <g
-       transform="matrix(0.35282725,0,0,0.35282725,42.547861,231.54663)"
+       transform="matrix(0.35282725,0,0,0.35282725,29.847911,234.19247)"
        class="graph"
        id="graph0-9">
       <title
          id="title6276">G</title>
       <polygon
          id="polygon6278"
-         points="209.9655,-61.9828 209.9655,4 -4,4 -4,-61.9828 "
+         points="-4,-61.9828 209.9655,-61.9828 209.9655,4 -4,4 "
          stroke="transparent"
          style="fill:#ffffff" />
       <!-- leaf -->
@@ -464,7 +464,7 @@
            id="title6280">leaf</title>
         <polygon
            id="polygon6282"
-           points="0,-8.4914 54,-8.4914 54,-49.4914 0,-49.4914 "
+           points="0,-49.4914 0,-8.4914 54,-8.4914 54,-49.4914 "
            style="fill:none;stroke:#000000;stroke-width:4" />
         <text
            id="text6284"
@@ -507,14 +507,14 @@
       </g>
     </g>
     <g
-       transform="matrix(0.35252285,0,0,0.35252285,264.61541,53.220131)"
+       transform="matrix(0.35252285,0,0,0.35252285,260.65083,51.468989)"
        class="graph"
        id="graph0-0">
       <title
          id="title6322">G</title>
       <polygon
          id="polygon6324"
-         points="-4,-61.9828 397.2864,-61.9828 397.2864,4 -4,4 "
+         points="397.2864,4 -4,4 -4,-61.9828 397.2864,-61.9828 "
          stroke="transparent"
          style="fill:#ffffff" />
       <!-- leaf -->
@@ -525,7 +525,7 @@
            id="title6326">leaf</title>
         <polygon
            id="polygon6328"
-           points="0,-49.4914 0,-8.4914 54,-8.4914 54,-49.4914 "
+           points="54,-8.4914 54,-49.4914 0,-49.4914 0,-8.4914 "
            style="fill:none;stroke:#000000;stroke-width:4" />
         <text
            id="text6330"
@@ -600,14 +600,14 @@
       </g>
     </g>
     <g
-       transform="matrix(0.35252285,0,0,0.35252285,264.61541,95.553464)"
+       transform="matrix(0.35252285,0,0,0.35252285,260.65083,93.802323)"
        class="graph"
        id="graph0-6">
       <title
          id="title6387">G</title>
       <polygon
          id="polygon6389"
-         points="-4,-61.9828 397.2864,-61.9828 397.2864,4 -4,4 "
+         points="397.2864,4 -4,4 -4,-61.9828 397.2864,-61.9828 "
          stroke="transparent"
          style="fill:#ffffff" />
       <!-- leaf -->
@@ -618,7 +618,7 @@
            id="title6391">leaf</title>
         <polygon
            id="polygon6393"
-           points="0,-49.4914 0,-8.4914 54,-8.4914 54,-49.4914 "
+           points="54,-8.4914 54,-49.4914 0,-49.4914 0,-8.4914 "
            style="fill:none;stroke:#000000;stroke-width:4" />
         <text
            id="text6395"
@@ -693,14 +693,14 @@
       </g>
     </g>
     <g
-       transform="matrix(0.35282725,0,0,0.35282725,273.43241,136.85527)"
+       transform="matrix(0.35282725,0,0,0.35282725,260.73246,139.50111)"
        class="graph"
        id="graph0-93">
       <title
          id="title6452">G</title>
       <polygon
          id="polygon6454"
-         points="-4,-61.9828 209.9655,-61.9828 209.9655,4 -4,4 "
+         points="-4,4 -4,-61.9828 209.9655,-61.9828 209.9655,4 "
          stroke="transparent"
          style="fill:#ffffff" />
       <!-- leaf -->
@@ -711,7 +711,7 @@
            id="title6456">leaf</title>
         <polygon
            id="polygon6458"
-           points="0,-49.4914 0,-8.4914 54,-8.4914 54,-49.4914 "
+           points="54,-49.4914 0,-49.4914 0,-8.4914 54,-8.4914 "
            style="fill:none;stroke:#000000;stroke-width:4" />
         <text
            id="text6460"
@@ -754,14 +754,14 @@
       </g>
     </g>
     <g
-       transform="matrix(0.35232499,0,0,0.35232499,273.40065,179.17404)"
+       transform="matrix(0.35232499,0,0,0.35232499,260.7007,181.81988)"
        class="graph"
        id="graph0-62">
       <title
          id="title6498">G</title>
       <polygon
          id="polygon6500"
-         points="245.3209,4 -4,4 -4,-61.9828 245.3209,-61.9828 "
+         points="245.3209,-61.9828 245.3209,4 -4,4 -4,-61.9828 "
          stroke="transparent"
          style="fill:#ffffff" />
       <!-- leaf -->
@@ -772,7 +772,7 @@
            id="title6502">leaf</title>
         <polygon
            id="polygon6504"
-           points="54,-8.4914 54,-49.4914 0,-49.4914 0,-8.4914 "
+           points="0,-8.4914 54,-8.4914 54,-49.4914 0,-49.4914 "
            style="fill:none;stroke:#000000;stroke-width:4" />
         <text
            id="text6506"
@@ -815,14 +815,14 @@
       </g>
     </g>
     <g
-       transform="matrix(0.35232499,0,0,0.35232499,273.40065,221.50737)"
+       transform="matrix(0.35232499,0,0,0.35232499,260.7007,224.15321)"
        class="graph"
        id="graph0-4">
       <title
          id="title6544">G</title>
       <polygon
          id="polygon6546"
-         points="245.3209,4 -4,4 -4,-61.9828 245.3209,-61.9828 "
+         points="245.3209,-61.9828 245.3209,4 -4,4 -4,-61.9828 "
          stroke="transparent"
          style="fill:#ffffff" />
       <!-- leaf -->
@@ -833,7 +833,7 @@
            id="title6548">leaf</title>
         <polygon
            id="polygon6550"
-           points="54,-8.4914 54,-49.4914 0,-49.4914 0,-8.4914 "
+           points="0,-8.4914 54,-8.4914 54,-49.4914 0,-49.4914 "
            style="fill:none;stroke:#000000;stroke-width:4" />
         <text
            id="text6552"
@@ -876,40 +876,40 @@
       </g>
     </g>
     <ellipse
-       style="fill:none;fill-opacity:1;stroke:#8d8d8d;stroke-width:1.88902116;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.6627451"
+       style="fill:none;fill-opacity:1;stroke:#8d8d8d;stroke-width:1.9089098;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.6627451"
        id="path4583-3-0"
        cx="327.31439"
-       cy="107.89011"
-       rx="91.154175"
-       ry="159.39555" />
+       cy="111.2919"
+       rx="91.144234"
+       ry="162.7874" />
     <path
-       style="fill:none;stroke:#1b9e74;stroke-width:2.66666675;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#000000;stroke-width:2.66666675;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.49019608"
        d="M 169.33333,19.48148 254,85.333334"
        id="path6605"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:none;stroke:#1b9e74;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.4903475"
        d="M 169.33333,19.187501 254,40.354168 v 0 l -84.66667,10.583334 v 0"
        id="path6607"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:none;stroke:#1b9e74;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:0.49019608;stroke-miterlimit:4;stroke-dasharray:none"
        d="M 169.33333,53.583333 254,85.333333 v 0"
        id="path6609"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:none;stroke:#7570b3;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 129.11662,93.270823 137.58333,74.083337 v 0"
+       style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 116.41667,95.916666 254,170 v 0"
        id="path6611"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:none;stroke:#7570b3;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 266.69995,167.35416 129.11662,135.60416 266.69995,209.6875 129.11662,93.270823"
+       style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 254,170 116.41667,138.25 254,212.33334 116.41667,95.916666"
        id="path6613"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:none;stroke:#1b9e74;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 118.53328,177.93749 148.16667,-52.91666 v 0 l -148.16667,95.25"
+       style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.49019608"
+       d="M 105.83333,180.58333 254,127.66667 v 0 l -148.16667,95.25"
        id="path6615"
        inkscape:connector-curvature="0" />
     <flowRoot
@@ -946,35 +946,25 @@
            y="37.952755" /></flowRegion><flowPara
          id="flowPara1027" /></flowRoot>    <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:22.57777786px;line-height:0;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       x="268.44958"
-       y="293.69824"
+       style="font-style:normal;font-weight:normal;font-size:14.11111069px;line-height:0;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="58.96986"
+       y="293.29572"
+       id="text1035"><tspan
+         sodipodi:role="line"
+         id="tspan1033"
+         x="58.96986"
+         y="293.29572"
+         style="font-size:22.57777786px;stroke-width:0.26458332">Query</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:14.11111069px;line-height:0;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="272.22934"
+       y="294.83218"
        id="text1039"><tspan
          sodipodi:role="line"
          id="tspan1037"
-         x="268.44958"
-         y="293.69824"
+         x="272.22934"
+         y="294.83218"
          style="font-size:22.57777786px;stroke-width:0.26458332">Candidate</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:22.57777786px;line-height:0;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       x="57.830353"
-       y="293.22021"
-       id="text4726"><tspan
-         sodipodi:role="line"
-         id="tspan4724"
-         x="57.830353"
-         y="293.22021"
-         style="font-size:22.57777786px;stroke-width:0.26458332">Query</tspan></text>
-    <flowRoot
-       xml:space="preserve"
-       id="flowRoot4728"
-       style="fill:black;fill-opacity:1;stroke:none;font-family:sans-serif;font-style:normal;font-weight:normal;font-size:53.33333333px;line-height:0;letter-spacing:0px;word-spacing:0px"><flowRegion
-         id="flowRegion4730"><rect
-           id="rect4732"
-           width="700"
-           height="100"
-           x="920"
-           y="1217.9528" /></flowRegion><flowPara
-         id="flowPara4734"></flowPara></flowRoot>  </g>
+  </g>
 </svg>
