@@ -22,6 +22,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{marvosym}
+\usepackage{hyperref}
 
 \DeclareMathOperator*{\argmax}{arg\,max}
 
@@ -468,7 +469,7 @@ The dataset contains over 590,000 math expressions taken from English Wikipedia.
 Since work in formula retrieval is relatively new, there are only 40 queries in NTCIR-12 that can be compared with other published systems. However, these queries are well designed to cover a variety of math expressions in different complexity and it is still meaningful to compare for efficiency evaluation. There are 20 queries containing wildcards (using wildcard specifier \textbf{\textbackslash{}qvar} to match arbitrary subexpression or symbols, e.g., query ``\textbackslash qvar\{a\} + \textbackslash qvar\{b\}'' can match ``$x^2 + (y + 1)^3$'').
 
 We add support for wildcards by simply treating internal nodes (representing a rooted subexpression) of indexing formula as additional ``leaves'' (by ignoring their descendants), and the wildcard specifiers in a query are treated as normal leaves to match those indexed wildcard paths.
-Since the corpus of NTCIR-12 is not large enough to show the full impact of pruning, we also evaluate query run times on a corpus containing over 1 million math related documents/threads from Math StackExchange (MSE) Q\&A website\footnote{Dataset: \url{https://approach0.xyz/ecir2020/mse-corpus.tar.gz}} and we run the same query set from NTCIR-12.
+Since the corpus of NTCIR-12 is not large enough to show the full impact of pruning, we also evaluate query run times on a corpus containing over 1 million math related documents/threads from Math StackExchange (MSE) Q\&A website\footnote{Dataset: \url{https://www.cs.rit.edu/~dprl/data/mse-corpus.tar.gz}} and we run the same query set from NTCIR-12.
 %
 Run times are measured only for posting lists merging stage (e.g., time cost for parsing query into OPT are excluded) and unless specified, evaluating posting lists are compressed and cached into memory.
 %
