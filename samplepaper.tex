@@ -74,7 +74,7 @@ $(a + bc) + xy$
 \end{minipage}
 \end{center}
 
-\caption{Operator trees (OPTs) for two similar formulas. OPTs represent the application of operations (at internal nodes in circles) to operands (at the leaves in squares). Two common substructures are highlighted in green and purple.}
+\caption{Operator trees (OPTs) for two similar formulas. OPTs represent the application of operations (at internal nodes in circles) to operands (at the leaves in squares). Two common substructures are highlighted in black and gray.}
 \label{intro}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -128,7 +128,7 @@ For query paths, the corresponding posting lists are merged and approximate matc
 
 Because math symbols are interchangeable, paths are tokenized for better recall (operand symbols such as $a, b, c$ are tokenized into VAR).
 Given Figure~\ref{intro} for example, if document expression ``bc + xy + a + z'' is indexed, its expression ID (or ExpID) will be appended to the posting lists associated with tokenized prefix paths from its OPT representation.
-And the two common structures highlighted in green and purple can be found by matching these tokenized paths, i.e.,  VAR/TIMES, VAR/ADD and VAR/TIMES/ADD (uppercase words denote tokens, VAR is the token for variables) and group them by shared subtree root nodes (i.e., ADD and TIMES on the right side).
+And the two common structures highlighted in black and gray can be found by matching these tokenized paths, i.e.,  VAR/TIMES, VAR/ADD and VAR/TIMES/ADD (uppercase words denote tokens, VAR is the token for variables) and group them by shared subtree root nodes (i.e., ADD and TIMES on the right side).
 %
 In our context, two paths can match if and only if they have the same tokenized paths,
 for example, ``a/+'' and ``z/+'' can be matched.
@@ -156,7 +156,7 @@ where
 $\text{CFS}(T_q, T_d)$ are all the \textit{common formula subtrees} between query and document OPTs $T_q$ and $T_d$.
 In addition to general subtree isomorphism definition, a formula subtree requires leaves in a subtree to be also mapped to leaves in the counterpart, in other words, the subtree is matched bottom-up.
 %
-In Figure~\ref{intro}, the value of $w^*_{Q, D}$ is 3, produced by widest common subtrees highlighted in green.
+In Figure~\ref{intro}, the value of $w^*_{Q, D}$ is 3, produced by widest common subtrees highlighted in gray.
 
 \vspace{0.1in}
 \noindent\textbf{Dynamic Pruning}\; In dynamic pruning, the top K scored candidate hits are kept throughout the querying process dynamically and the lowest score in top K candidates is defined as \textit{threshold} $\theta$. Since at most K candidates will be returned as search results, dynamic pruning strategies work by estimating a score upperbound early before knowing the precise score of a hit.
@@ -181,7 +181,7 @@ In contrast, typical TF-IDF scoring has all hit terms contribute to the ranking 
 \begin{figure}[!t]
 \begin{center}
 \includegraphics[width=1.90in]{fig/bipartile.eps}
-\caption{Bipartite graph of hit path set for formulas in Figure~\ref{intro} (original leaf symbol is used here to help identify paths). Edges are established if paths from the two sides are the same after tokenization. Edges with shared end points (i.e., same root-end nodes) in original OPTs have the same color. }
+\caption{Bipartite graph of hit path set for formulas in Figure~\ref{intro} (original leaf symbol is used here to help identify paths). Edges are established if paths from the two sides are the same after tokenization. Edges with shared end points (i.e., same root-end nodes) in original OPTs have the same color (black or gray). }
 \label{bipart}
 \end{center}
 \end{figure}
