@@ -150,7 +150,7 @@ According to previous experiments in \cite{a0_2019}, interestingly, the multiple
 Consider only scoring based on the widest common subtree and counting its operands, the scoring can be simplified. The resulting score between query and document OPTs $T_q, T_d$ is the widest matched tree width $w^*_{Q, D}$, formally
 \begin{align}
 \label{eq:2}
-w^*_{Q, D} = \max_{\hat{T}_q, \hat{T}_d \in \text{CFS}(T_q,T_d)}(|\operatorname{leaves}(\hat{T}_d)|)
+w^*_{Q, D} = \max_{\hat{T}_q, \hat{T}_d \in \text{CFS}(T_q,T_d)} |\operatorname{leaves}(\hat{T}_d)|
 \end{align}
 where
 $\text{CFS}(T_q, T_d)$ are all the \textit{common formula subtrees} between query and document OPTs $T_q$ and $T_d$.
@@ -231,7 +231,6 @@ where $\nu(G)$ is the maximum matching size of bipartite graph $G$.
 
 Denote $w_{m, t} = |Q^{(m)}_t|$, we call $w_{m, t} \ge \min(|Q^{(m)}_t|, |D^{(n)}_t|)$ as our (precomputed) partial score upperbound.
 It is analogous to text search where each posting list has a partial score upperbound, the TF-IDF score upperbound is merely sum of them. While in our case we have to sum and only select the maximum of them.
-%(we will show that this is an advantage because we can potentially drop some posting lists completely at merge time to improve efficiency).
 
 In the following we propose three strategies to compute overall similarity upperbound from partial score upperbounds and assign non-requirement set.
 
@@ -240,8 +239,7 @@ In the following we propose three strategies to compute overall similarity upper
 In MaxScore~\cite{turtle_flood_1995, strohman_turtle_2005}, each posting list has a partial score upperbound, however, our scoring function implies each posting list can be involved with multiple partial score upperbounds.
 One way to select the non-requirement set in our case is using an upperbound score $MaxRef_t$ (for each posting list $t$) which is the maximum partial score from the query nodes by which this posting list gets ``referenced'', and if a set of posting lists alone has a sum of MaxRef scores less or equal to $\theta$, they can be safely put into the non-requirement set.
 
-The rank safety can be justified, since each posting list corresponds to a unique tokenized path $t$, and $\text{MaxRef}_t = \max_m w_{m, t}$,
-for $m \in T_q, n \in T_d$,
+The rank safety can be justified, since each posting list corresponds to a unique tokenized path $t$, and $\text{MaxRef}_t = \max_m w_{m, t}$. Then for $m \in T_q, n \in T_d$,
 \begin{align}
 \label{eq:6}
 \sum_t \min(|Q^{(m)}_t|, |D^{(n)}_t|) \le \sum_t w_{m,t} \le \sum_t \text{MaxRef}_t
@@ -356,7 +354,7 @@ In our implementation, each posting list is traversed by an iterator ($iters[t]$
 \begin{figure*}[!t]
 \begin{center}
 \hspace*{-0.6in}\includegraphics[height=1.5in]{fig/drawing.eps}
-\caption{Indices for formula search with dynamic pruning. The top posting list is the only one in requirement set using strategy MaxRef, and the bottom two are advanced by skipping to candidate ExpID.}
+\caption{Indices for formula search with dynamic pruning. For MaxRef strategy, the top posting list is the only one in requirement set, and the bottom two are advanced by skipping to next candidate ExpID.}
 \label{figillu}
 \end{center}
 \end{figure*}
