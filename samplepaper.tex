@@ -250,55 +250,6 @@ follows $w^*_{Q, D} \le \theta$ for all non-requirement set posting lists.
 
 \vspace{0.1in}
 \noindent \textbf{Greedy binary programming (GBP) strategies}\;
-% \begin{algorithm}[!t]
-% \small
-% \begin{flushleft}
-% \textbf{Input}: $\mathbf W, \mathbf L, \theta$ where $\mathbf L$ is objective function coefficients \\
-% \textbf{Output}: $I, p$ indicating the assignment of posting lists \\
-% I[1 : p] are posting lists IDs in requirement set; \\
-% I[(p + 1) : n] are posting list IDs in \textbf{Skip}.
-% \end{flushleft}
-% \caption{Greedy solver for problem in GBP}
-% \label{alg0}
-% \begin{algorithmic}[1]
-% 
-% \Function{SolveRecur}{$\mathbf W, \mathbf L, \theta$, I, p}
-% \State n := len($\mathbf L$)
-% \If {p $\ge$ n}
-% 	\State \Return I, p
-% 	\Comment{All in requirement set.}
-% \EndIf
-% \State $\boldsymbol x$ := $\{x_i\}_{n \times 1}$ where [1 : p] are zeros, [p + 1: n] are ones.
-% \State r := row in $\mathbf W \boldsymbol x$ that violates the constraints the most.
-% \If {no row violates constraints}
-% 	\State \Return I, p
-% 	\Comment{This is a feasible solution.}
-% \EndIf
-% 
-% \State c := a column such that $(\mathbf L \circ \boldsymbol x^T)_c$ is minimal and $\mathbf W_{r, c} > 0$
-% \State swap column c and p in $\mathbf W, \mathbf L$ and $I$
-% \Comment{Take out $c$ heuristically.}
-% \State p := p + 1
-% \State \Return \Call{SolveRecur}{$\mathbf W, \mathbf L, x, \theta$, p}
-% \EndFunction
-% 
-% \Function{Solve}{$\mathbf W, \mathbf L, \theta$}
-% \State p := 0
-% \Comment{An index pivot of requirement vs. non-requirement set.}
-% \State I := index vector [1 : len($\mathbf L$)]
-% \Comment{Length of $\mathbf L$ is essentially $|\mathfrak{T}|$.}
-% \For {each column j in $\mathbf W$} 
-%     \Comment{Take out those obviously not in \textbf{Skip}.}
-% 	\State m := maximum element of column j in $\mathbf W$
-% 	\If {m $> \theta$}
-% 	\State swap column j and p in $\mathbf W, \mathbf L$ and $I$
-% 	\State p := p + 1
-% 	\EndIf
-% \EndFor 
-% \State \Return \Call{SolveRecur}{$\mathbf W, \mathbf L, \theta$, I, p}
-% \EndFunction
-% \end{algorithmic}
-% \end{algorithm}
 %
 Inequality~(\ref{eq:6}) is relaxed twice, so it spurs the motivation to get tighter upperbound value by maximizing posting lists in non-requirement set (so that more posting lists are likely to be skipped).
 Define partial upperbound matrix $\mathbf{W} = \{ w_{i, j} \}_{|T_q| \times |\mathfrak{T}|} $ where $\mathfrak{T} = \{ \mathfrak{T}(m), m \in T_q \}$ are all the token paths from query OPT ($\mathfrak{T}$ is essentially the same as tokenized $\mathcal{P}(T_q)$), and a binary variable $\boldsymbol{x}_{|\mathfrak{T}| \times 1}$ indicating which corresponding posting lists are taken into non-requirement set.
@@ -325,6 +276,8 @@ since constraints in inequalities~(\ref{eq:7}) demands $\sum_{t \in \textbf{Skip
 Both binary programming strategies require solving binary programming problem which is known to be NP-complete thus too heavy to run for long queries.
 Therefore at implementation we just greedily follow one branch of the binary programming sub-problems to get a greedy solution running in $O(|T_q| |\mathfrak{T}|^2)$.
 %Greedy solutions also meet these constraints, thus it is still rank-safe.
+
+%\input{gbp.tex}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Implementation}
