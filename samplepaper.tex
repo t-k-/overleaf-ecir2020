@@ -127,7 +127,7 @@ For query paths, the corresponding posting lists are merged and approximate matc
 
 Because math symbols are interchangeable, paths are tokenized for better recall, e.g., variables such as $a, b, c$ are tokenized into VAR. In our tokenized path representation uppercase words denote token types, which may be for operators as well as operands (e.g., TIMES for symbols representing multiplication).
 In Figure~\ref{intro}, when indexing ``bc + xy + a + z,'' its expression ID (or ExpID) will be appended to posting lists associated with tokenized prefix paths from its OPT representation, i.e.,  VAR/TIMES, VAR/ADD and VAR/TIMES/ADD.
-At query processing, the shared structures highlighted in black and gray are found by matching these tokenized paths (two paths match if and only if they have the same tokenized paths, for example, ``a/+'' and ``z/+'' can be matched) and common subtrees are  found by grouping paths by their root nodes.
+At query processing, the shared structures highlighted in black and gray are found by matching these tokenized paths (two paths match if and only if they have the same tokenized paths, for example, ``a/+'' and ``z/+'' can be matched) and common subtree roots  are identified by grouping paths by their root nodes.
 %
 As a result, in addition to ExpID, the posting list entry stores the root node ID for indexed paths, in order to reconstruct matches substructures at merge time.
 
@@ -143,7 +143,7 @@ The original Approach0 model \cite{a0_2019} matches up to three widest common su
 %
 Interestingly, while multiple subtree matching boosts effectiveness, using just the widest match still outperforms other systems in terms of highly relevant results~\cite{a0_2019}.
 %
-The simplified similarity score based on only widest common subtree between query and document OPTs $T_q, T_d$ is the widest match $w^*_{Q, D}$, formally
+The simplified similarity score based on widest common subtree between query and document OPTs $T_q, T_d$ is the widest match $w^*_{Q, D}$, formally
 \begin{align}
 \label{eq:2}
 w^*_{Q, D} = \max_{\hat{T}_q, \hat{T}_d \in \text{CFS}(T_q,T_d)} |\operatorname{leaves}(\hat{T}_d)|
@@ -586,7 +586,7 @@ Tangent-S has a few outliers as a result of its costly alignment algorithm to re
 %
 And MCAT reportedly has a median query execution time around 25 seconds, using a server machine and multi-threading~\cite{mcat_16}.
 So we remove Tangent-S outliers and MCAT from runtime boxplot.
-For space, we only include the faster base-opd-only baseline into Figure~\ref{boxplot}.
+For space, we only include the faster base-opd-only baseline in Figure~\ref{boxplot}.
 
 We outperform Tangent-S in efficiency even if we exclude their outlier queries, with higher Bpref in non-wildcard fully relevant results. Our efficiency is also better than the baseline system, even if the latter only considers less complex non-wildcard queries.
 %
