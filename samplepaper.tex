@@ -156,9 +156,9 @@ In Figure~\ref{intro}, the value of $w^*_{Q, D}$ is 3, produced by the widest co
 
 \vspace{0.1in}
 \noindent\textbf{Dynamic Pruning}\; In dynamic pruning, the top K scored hits are kept throughout the querying process, with the lowest score in the top K at a given point defining the threshold $\theta$. Since at most K candidates will be returned, dynamic pruning strategies work by estimating score upperbounds before knowing the precise score of a hit so that candidate hits with a score upperbound less or equal to $\theta$ can be pruned safely, because they will not appear in the final top K results.
-Moreover, if a subset of hit posting lists alone cannot produce a top K result from their upperbounds, they are called a \textit{non-requirement set}, the opposite being the \textit{requirement set}.
+Moreover, if a subset of posting lists alone cannot produce a top K result from their upperbounds, they are called a \textit{non-requirement set}, the opposite being the \textit{requirement set}.
 %
-Posting lists in the non-requirement with IDs less than the current IDs in the requirement set can be skipped safely, because posting lists in the non-requirement set alone will not produce a top K candidate.
+Posting lists in the non-requirement with IDs less than the currently evaluating IDs in the requirement set can be skipped safely, because posting lists in the non-requirement set alone will not produce a top K candidate.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Methodology}
@@ -398,7 +398,7 @@ Then the algorithm selects the best matched query node and its matched width (i.
 
 After obtaining $w^*_{Q, D}$, we compute a metric for the similarity of symbols (e.g., to differentiate $E=mc^2$ and $y=ax^2$) and penalize larger formulas, to produce a final \emph{overall similarity score}~\cite{a0_2019} for ranking.
 Because of this additional layer, we need to relax our upperbound further.
-According to \cite{a0_2019}, the relaxing function $u$ is defined as
+According to the overall scoring function in \cite{a0_2019}, our relaxing function $u$ can be defined by assuming perfect symbol similarity score in overall scoring function, specifically
 \begin{equation}
 u(w) = \frac{w}{|\text{leaves}(T_q)| + w} \left[ (1 - \eta) + \eta \, \frac 1 {\log (1 + n_d)} \right]
 \end{equation}
