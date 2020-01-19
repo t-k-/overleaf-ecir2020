@@ -123,46 +123,39 @@ Shan et al.~\cite{Shandongdong2012} show that MaxScore variants (e.g. BMM, LBMM)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Preliminaries}
 \noindent\textbf{Baseline Model}\; This work is based on our previous work~\cite{a0_2019} which extracts prefixes from OPT leaf-root paths as index or query terms. The OPT is parsed from a formula in \LaTeX{}. For indexed paths, they are mapped to corresponding posting lists in an inverted index where the IDs of expressions containing the path are appended.
-For query paths, the corresponding posting lists are merged and approximate matching is performed on candidates one expression at a time. The score is calculated from matched common subtree(s).
+For query paths, the corresponding posting lists are merged and approximate matching is performed on candidates one expression at a time. The similarity score is measured from matched common subtree(s).
 
 Because math symbols are interchangeable, paths are tokenized for better recall, e.g., variables such as $a, b, c$ are tokenized into VAR. In our tokenized path representation uppercase words denote token types, which may be for operators as well as operands (e.g., TIMES for symbols representing multiplication).
-In Figure~\ref{intro}, when indexing ``bc + xy + a + z,'' its expression ID (or ExpID) will be appended to posting lists associated with tokenized prefix paths from its OPT representation.
-The shared structures highlighted in black and gray are found by matching tokenized paths, i.e.,  VAR/TIMES, VAR/ADD and VAR/TIMES/ADD starting at the same root node (i.e., ADD and TIMES on the right side).
+In Figure~\ref{intro}, when indexing ``bc + xy + a + z,'' its expression ID (or ExpID) will be appended to posting lists associated with tokenized prefix paths from its OPT representation, i.e.,  VAR/TIMES, VAR/ADD and VAR/TIMES/ADD.
+At query processing, the shared structures highlighted in black and gray are found by matching these tokenized paths (two paths match if and only if they have the same tokenized paths, for example, ``a/+'' and ``z/+'' can be matched) and common subtrees are  found by grouping paths by their root nodes.
 %
-Two paths match if and only if they have the same tokenized paths,
-for example, ``a/+'' and ``z/+'' can be matched.
+As a result, in addition to ExpID, the posting list entry stores the root node ID for indexed paths, in order to reconstruct matches substructures at merge time.
 
-In addition to ExpID, the posting list entry stores the root node ID for indexed paths, in order to reconstruct matches substructures at merge time.
 At query time, the similarity score is given by the size of matched common subtrees.
-%assuming that subtrees are identical only if their leaf-root paths match.
-
+%
 Specifically, the model chooses a number of ``widest'' matched subtree(s) (e.g., $a+bc$ is the widest matched in Figure~\ref{intro} because it has 3 common leaves and is ``wider'' than the other choices) and measure formula similarity based on the size of common subtrees.
 
-The original Approach0 model \cite{a0_2019} matches up to three widest common subtrees and scores similarity by a weighted sum of the number of matched leaves (operands) and operators from different common subtrees $\hat{T}_q^i, \hat{T}_d^i$ of a common forest $\pi$. Operators and operand (leaf) nodes weights are controlled by parameter $\alpha$, while the weight of rooted substructures from largest to smallest are given by $B_i$. In the following, $|\cdot|$ indicates the size of a set:
-%and assigning them different score weights $\alpha$ and $\beta$ (we use notation $|\cdot|$ to indicate the number of elements):
+The original Approach0 model \cite{a0_2019} matches up to three widest common subtrees and scores similarity by a weighted sum of the number of matched leaves (operands) and operators from different common subtrees $\hat{T}_q^i, \hat{T}_d^i$ of a common forest $\pi$. Operators and operand (leaf) nodes weights are controlled by parameter $\alpha$, while the weight of rooted substructures from largest to smallest are given by $\beta_i$. In the following, $|\cdot|$ indicates the size of a set:
 \begin{align}
 \label{eq:1}
 \sum^3_{i=1} \beta_i \left( \alpha \cdot \left|\operatorname{operators}(\hat{T}_d^i)\right| + (1 - \alpha) \cdot \left|\operatorname{leaves}(\hat{T}_d^i)\right| \right)\;, \qquad (\hat{T}_q^i, \hat{T}_d^i) \in \pi
 \end{align}
 %
-%According to previous experiments in \cite{a0_2019}, 
-Interestingly, while multiple subtree matching boosts effectiveness, using just the widest match still outperforms other systems in terms of high relevance/similarity.
+Interestingly, while multiple subtree matching boosts effectiveness, using just the widest match still outperforms other systems in terms of highly relevant results~\cite{a0_2019}.
 %
-Scoring from the widest common subtree simplifies scoring: the resulting score for query and document OPTs $T_q, T_d$ is the widest match $w^*_{Q, D}$, formally
+The simplified similarity score based on only widest common subtree between query and document OPTs $T_q, T_d$ is the widest match $w^*_{Q, D}$, formally
 \begin{align}
 \label{eq:2}
 w^*_{Q, D} = \max_{\hat{T}_q, \hat{T}_d \in \text{CFS}(T_q,T_d)} |\operatorname{leaves}(\hat{T}_d)|
 \end{align}
 where
-$\text{CFS}(T_q, T_d)$ are all the \textit{common formula subtrees} between query and document OPTs $T_q$ and $T_d$.
+$\text{CFS}(T_q, T_d)$ are all the \textit{common formula subtrees} between $T_q$ and $T_d$.
 In addition to subtree isomorphism, a \emph{formula subtree} requires leaves in a subtree to match leaves in the counterpart, in other words, subtrees are matched bottom-up from operands in OPTs.
 %
-In Figure~\ref{intro}, the value of $w^*_{Q, D}$ is 3, for the widest common subtrees shown in gray.
+In Figure~\ref{intro}, the value of $w^*_{Q, D}$ is 3, produced by the widest common subtrees shown in gray.
 
 \vspace{0.1in}
-\noindent\textbf{Dynamic Pruning}\; In dynamic pruning, the top K scored hits are observed throughout the querying process, with the lowest score in the top K at a given point defining the threshold $\theta$. Since at most K candidates will be returned, dynamic pruning strategies estimate score upperbounds before knowing the precise score of a hit.
-%
-Candidate hits with a score less or equal to $\theta$ can be pruned safely, because they will not appear in the final top K results.
+\noindent\textbf{Dynamic Pruning}\; In dynamic pruning, the top K scored hits are kept throughout the querying process, with the lowest score in the top K at a given point defining the threshold $\theta$. Since at most K candidates will be returned, dynamic pruning strategies work by estimating score upperbounds before knowing the precise score of a hit so that candidate hits with a score upperbound less or equal to $\theta$ can be pruned safely, because they will not appear in the final top K results.
 Moreover, if a subset of hit posting lists alone cannot produce a top K result from their upperbounds, they are called a \textit{non-requirement set}, the opposite being the \textit{requirement set}.
 %
 Posting lists in the non-requirement with IDs less than the current IDs in the requirement set can be skipped safely, because posting lists in the non-requirement set alone will not produce a top K candidate.
@@ -173,7 +166,7 @@ Posting lists in the non-requirement with IDs less than the current IDs in the r
 In this paper, we apply dynamic pruning to structural search.
 As structure search has more query terms in general, we focus on a MaxScore-like strategy suggested by~\cite{Shandongdong2012, antonio2019}, since they do not need to sort query terms at merge iterations (which is expensive for long queries).
 %
-Our approach is different from the original MaxScore, as upperbound scores are also calculated from the query tree representation. In our approach each node has a maximum number of leaves to match.
+Our approach is different from the original MaxScore, as upperbound scores are also calculated from the query tree representation.
 We also use the simplified scoring equation~(\ref{eq:2})
 where a subset of query terms in the widest matched common subtrees $\hat{T}_q, \hat{T}_d$ contribute to the score.
 In contrast, typical TF-IDF scoring has all hit terms contribute to the rank score.
@@ -188,7 +181,7 @@ In contrast, typical TF-IDF scoring has all hit terms contribute to the rank sco
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-To merge posting lists, a set of query paths match paths from a document expression one at a time, each time a \textit{hit path set} for matched query and candidate paths are examined.
+When we merge posting lists, a set of query paths match paths from a document expression one at a time, each time a \textit{hit path set} for matched query and candidate paths are examined.
 %
 Define $\mathcal{P}(T)$ to be all paths extracted from OPT $T$, i.e.,
 $\mathcal{P}(T) = \{p: p \in \operatorname{leafroot\_paths}(T^n), n \in T\}$ where $T^n$ is the entire subtree of $T$ rooted at $n$ with all its descendants.
@@ -205,12 +198,12 @@ E_t &= \{(q, d): (q, d) \in E, \operatorname{tokenized}(q) = \operatorname{token
 \end{aligned}
 $$
 
-Figure~\ref{bipart} shows the hit path set graph of the example in Figure~\ref{intro}, this example can be partitioned into independent subgraphs associated with tokenized paths VAR/TIMES/ADD, VAR/TIMES and VAR/ADD.
-Each partition is actually a complete bipartite graph (fully connected) because $\forall e \in (Q_t, D_t), e \in E_t$.
-And for each complete bipartite graph $G(Q_t, D_t, E)$, we can obtain their maximum matching sizes from $\min(|Q_t|, |D_t|)$ easily.
+Figure~\ref{bipart} shows the hit path set of the example in Figure~\ref{intro}, this example can be partitioned into independent subgraphs associated with tokenized paths VAR/TIMES/ADD, VAR/TIMES and VAR/ADD.
+Each partition is actually a complete bipartite graph (fully connected) because for any edge between $Q_t$ and $D_t$, it is in edge set $E_t$.
+And for each complete bipartite graph $G(Q_t, D_t, E_t)$, we can obtain their maximum matching sizes from $\min(|Q_t|, |D_t|)$ easily.
 
 On the other hand, to calculate score $w^*_{Q, D}$, we need to find a pair of query and document nodes at which the widest common subtree $\hat{T}^*_q, \hat{T}^*_d$ are rooted (see equation~\ref{eq:2}), so we also define the matching candidate relations filtered by nodes.
-Let $G^{(m, n)} = G(Q^{(m)}, D^{(n)}, E^{(m, n)})$ be the subgraph matching between query node $n$ and document node $m$  where
+Let $G^{(m, n)} = G(Q^{(m)}, D^{(n)}, E^{(m, n)})$ be the subgraph matching between query subtree rooted at $n$ and document subtree rooted at $m$  where
 $$
 \begin{aligned}
 Q^{(m)} &= \{ q: q \in Q, \operatorname{root\_end}(q) = m\} \\
@@ -218,11 +211,8 @@ D^{(n)} &= \{d: d \in D, \operatorname{root\_end}(d) = n\} \\
 E^{(m, n)} &= \{(q, d): (q, d) \in E, \operatorname{root\_end}(q) = m, \operatorname{root\_end}(d) = n\} 
 \end{aligned}
 $$
-Because we only need to know the maximum matched subtree width, we can calculate the score of node pairs independently, summing to obtain the maximum matching size among partitions ($w^*_{Q, D}$).
-%and the maximum matching pair of nodes is essentially our interested similarity score $w^*_{Q, D}$.
-Specifically,
-%
-define \textit{token paths} of tree $T$ rooted at $n$ as set $\mathfrak{T}(n) = \{t: t = \operatorname{tokenized}(p), p \in \operatorname{leafroot\_paths}(T^n) \}$, it follows
+Then, similarity score $w^*_{Q, D}$ can be calculated from node pairs and their partitions.
+Specifically, define \textit{token paths} of tree $T$ rooted at $n$ as set $\mathfrak{T}(n) = \{t: t = \operatorname{tokenized}(p), p \in \operatorname{leafroot\_paths}(T^n) \}$,
 \begin{align}
 w^*_{Q, D} &= \max_{m \in T_q, n \in T_d} \; \nu(G^{(m, n)}) \\
            &= \max_{m \in T_q, n \in T_d} \sum_{t \in \mathfrak{T}(m)} \nu(G^{(m, n)}_t) \\
@@ -231,10 +221,10 @@ w^*_{Q, D} &= \max_{m \in T_q, n \in T_d} \; \nu(G^{(m, n)}) \\
 \end{align}
 where $\nu(G)$ is the maximum matching size of bipartite graph $G$.
 
-Denote $w_{m, t} = |Q^{(m)}_t|$, we call $w_{m, t} \ge \min(|Q^{(m)}_t|, |D^{(n)}_t|)$ as our (precomputed) partial score upperbound.
-It is analogous to text search where each posting list has a partial score upperbound, the TF-IDF score upperbound is merely their sum. In our case, we have to sum and only select the maximum.
+Denote $w_{m, t} = |Q^{(m)}_t|$, we call $w_{m, t} \ge \min(|Q^{(m)}_t|, |D^{(n)}_t|)$ as our (pre-computed) partial score upperbound.
+It is analogous to text search where each posting list has a partial score upperbound, the TF-IDF score upperbound is merely their sum. In our case, the sum for partial score upperbounds is only for one node or subtree.
 
-In the following we propose three strategies to compute overall similarity upperbound from partial score upperbounds and assign non-requirement set.
+In the following we propose three strategies to compute $w^*_{Q, D}$ upperbound from partial score upperbounds and assign non-requirement set.
 
 \vspace{0.1in}
 \noindent \textbf{Max reference (MaxRef) strategy}\;
@@ -275,7 +265,7 @@ The two GBP strategies are rank-safe % because $\forall\; m \in T_q, n \in T_d$,
 since constraints in inequality~(\ref{eq:7}) requires $\sum_{t \in \textbf{Skip}} w_{m,t} \le \theta$.
 
 Both strategies require solving binary programming problems, which are known to be NP-complete and thus too intensive for long queries.
-Instead, we greedily follow one branch of the binary programming sub-problems to obtain a greedy solution in $O(|T_q| |\mathfrak{T}|^2)$.
+Instead, we greedily follow one branch of the binary programming sub-problems to obtain a feasible (but not optimal) solution in $O(|T_q| |\mathfrak{T}|^2)$.
 %Greedy solutions also meet these constraints, thus it is still rank-safe.
 
 %\input{gbp.tex}
@@ -285,23 +275,21 @@ Instead, we greedily follow one branch of the binary programming sub-problems to
 %\subsection{Indices structure}
 
 Figure~\ref{figillu} illustrates formula query processing using a modified inverted index for dynamic pruning.
-For each internal node $m$ of the query OPT, we store the number of leaves of $m$  as $w_m = |Q^{(m)}|$. The two numbers are denoted by $m/w_m$.
+For each internal node $m$ of the query OPT, we store the number of leaves of $m$  as $w_m = |Q^{(m)}|$. 
 Each query node points to tokenized path entries in a dictionary,
-where each reference is associated with $w_{m,t} = |Q^{(m)}_t|$ identified by tokenized path $t$.
+where each reference is associated with $w_{m,t} = |Q^{(m)}_t|$ identified by tokenized path $t$ (denoted as $m/w_m$ of $t$).
 %
 In Figure~\ref{figillu}, node $q1$ from the query has 6 leaves, which is also the upperbound number of path matches for $q1$, i.e, $|Q^{(1)}|$.
 Since $q1$ consists of 2 tokenized leaf-root paths VAR/TIMES/ADD and VAR/ADD,
 $q1$ is linked to two posting lists, each associated with a partial upperbound (5 and 1).
 
-Each posting list corresponds to a token path $t \in \mathfrak{T}$ with a dynamic counter for the number of query nodes referring to it (initially $|Q_t|$).
+Each posting list maps to a token path $t \in \mathfrak{T}$ with a dynamic counter for the number of query nodes referring to it (initially $|Q_t|$).
 Query nodes are pruned by our algorithm when its subtree width is no longer greater than the current threshold, because the corresponding subexpression cannot be in the top-K results. In this case
 the reference counter decreases. A posting list is removed if its reference counter is less than one.
-% 
-For ease of testing termination, we append ExpID \emph{MaxID} at the end of each posting list, which is larger than any ExpID in the collection.
 
-Each posting list entry identified by an ExpID stores $n$ and $w_{n,t} = |D^{(n)}_t|$ values (denoted as $n/w_n$ of $t$) of subtree token path $t$ rooted at $n$.
+Each posting list entry identified by an ExpID stores $n$ and $w_{n,t} = |D^{(n)}_t|$ values of subtree token path $t$ rooted at $n$ (denoted as $n/w_n$ of $t$).
 %
-As an example, in Figure~\ref{figillu}, the hit OPT shown at right (of ExpID 12) has 5 paths tokenized as $t =$ VAR/TIMES/ADD, 2 rooted at $d4$ and 3 rooted at $d1$. The information ($d1/3, d4/2$) is stored with  corresponding posing list $t$.
+As an example, in Figure~\ref{figillu}, the hit OPT (of ExpID 12) has 5 paths tokenized as $t =$ VAR/TIMES/ADD, 2 rooted at $d4$ and 3 rooted at $d1$. The information ($d1/3, d4/2$) is stored with corresponding posing list $t$.
 In our implementation, each posting list is traversed by an iterator ($iters[t]$), and its entries are read by $iters[t].read()$ from the current position accessed by iterator.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -397,6 +385,8 @@ Assignment according to different pruning strategies is described in Section~\re
 In the MaxRef strategy, we sort posting lists by descending $\text{MaxRef}$ values, and take as many posting lists as possible into non-requirement set from the lowest $\text{MaxRef}$ value.
 At merging, a \textit{candidate} ID is identified by assigning the minimal ExpID of current posting list iterators in the requirement set.
 Requirement set iterators are advanced by one using the \textit{next()} function, while iterators in the non-requirement set are advanced directly to the ID equal to or greater than the current candidate by the \textit{skipTo()} function. In Figure~\ref{figillu} for example, the posting list corresponding to VAR/TIMES/ADD is in the requirement set under the MaxRef strategy, while the other two are not: Document expression 13 and 15 will be skipped if the next candidate is 90.
+%
+For ease of testing termination, we append a special ExpID \emph{MaxID} at the end of each posting list, which is larger than any ExpID in the collection.
 
 At each iteration, a set of \textit{hitNodes} is inferred containing query nodes associated with posting lists whose current ExpIDs are candidate ID.
 \Call{qryNodeMatch}{} calculates matches for hit nodes according to equation~\ref{eq:5}, pruning nodes whose maximum matching size is smaller than than previously examined nodes.
@@ -404,10 +394,9 @@ At each iteration, a set of \textit{hitNodes} is inferred containing query nodes
 %
 Given query hit node $q1$ in Figure~\ref{figillu}, function \Call{qryNodeMatch}{} returns
 $$\max_{n\in T_d}\;\nu(G^{(1, n)}) = \max(\min(5, 2) + \min(1, 2),\; \min(5, 3)) = 3$$
-Then the algorithm selects the best matched query node and its matched width (\emph{widest}) is our structural similarity $w^*_{Q, D}$.
+Then the algorithm selects the best matched query node and its matched width (i.e., \emph{widest} in Algorithm~\ref{alg1}) is our structural similarity $w^*_{Q, D}$.
 
 After obtaining $w^*_{Q, D}$, we compute a metric for the similarity of symbols (e.g., to differentiate $E=mc^2$ and $y=ax^2$) and penalize larger formulas, to produce a final \emph{overall similarity score}~\cite{a0_2019} for ranking.
-%as the final score for ranking which further considers symbolic similarity (e.g., to differentiate $E=mc^2$ and $y=ax^2$) and also penalizes oversized candidate document.
 Because of this additional layer, we need to relax our upperbound further.
 According to \cite{a0_2019}, the relaxing function $u$ is defined as
 \begin{equation}
@@ -423,10 +412,10 @@ The dataset contains over 590,000 math expressions taken from English Wikipedia.
 %
 Since work in formula retrieval is relatively new, there are only 40 queries in NTCIR-12 that can be compared with other published systems. However, these queries are well designed to cover a variety of math expressions in different complexity.
 %and it is still meaningful to compare for efficiency evaluation. 
-There are 20 queries containing wildcards (using wildcard specifier \textbf{\textbackslash{}qvar} to match arbitrary subexpression or symbols, e.g., query ``\textbackslash qvar\{a\} + \textbackslash qvar\{b\}'' can match ``$x^2 + (y + 1)^3$'').
+There are 20 queries containing wildcards (using wildcard specifier \textbf{\textbackslash{}qvar} to match arbitrary subexpression or symbols, e.g., query ``\textbackslash qvar\{a\}$^2$ + \textbackslash qvar\{b\}$^3$'' can match ``$x^2 + (y + 1)^3$'').
 
 We add support for wildcards by simply treating internal nodes (representing a rooted subexpression) of formulas as additional ``leaves'' (by ignoring their descendants), and the wildcard specifiers in a query are treated as normal leaves to match those indexed wildcard paths.
-Since the corpus of NTCIR-12 is not large enough to show the full impact of pruning, we also evaluate query run times on a corpus containing over 1 million math related documents/threads from Math StackExchange (MSE) Q\&A website\footnote{Dataset: \url{https://www.cs.rit.edu/~dprl/data/mse-corpus.tar.gz}} and we run the same query set from NTCIR-12.
+Since the corpus of NTCIR-12 is not large enough to show the full impact of pruning, we also evaluate query run times on a corpus containing over 1 million math related documents/threads from Math StackExchange (MSE) Q\&A website\footnote{Download link: \url{https://www.cs.rit.edu/~dprl/data/mse-corpus.tar.gz}} and we run the same query set from NTCIR-12.
 %
 Run times are shown for the posting list merging stage (e.g., time for parsing the query into OPT is excluded) and unless specified, posting lists are compressed and cached into memory.
 %
@@ -533,7 +522,7 @@ This is expected since GBP-LEN models the skipping possibility better than GBP-N
 
 There are a few times the best minimal run times are from other strategies, for those with meaningful gaps, i.e., in Wiki dataset of non-wildcard queries when K = 1000, MaxRef outperforms in standard deviation and maximum run time to a notable margin; however, it likely results from a small threshold due to large K, so that the efficiency on the small sized NTCIR dataset is less affected by pruning (small $\theta$ means less pruning potential) compared to the time complexity added from assigning to the requirement set. The latter is more dominant in GBP runs. In wildcard queries, however, many expressions can match the query thus the threshold value is expected to be larger than that in the non-wildcard case.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{figure*}[!t]
+\begin{figure}[!t]
 \begin{center}
 
 %\hspace*{-3.6cm} 
@@ -572,26 +561,21 @@ There are a few times the best minimal run times are from other strategies, for 
 \begin{center}
 \hspace*{-0.1in}
 
-	%\begin{minipage}[b]{1.1in}
-	\includegraphics[width=\textwidth]{fig/boxplot.eps}
-	\vspace{-0.25in}
-	%\end{minipage}
-}
+\includegraphics[width=\textwidth]{fig/boxplot.eps}
+\vspace{-0.25in}
 
-\caption{Average run times for NTCIR-12 Wiki Formula Browsing Task (K = 1000).
-}
+\caption{Average run times on the same machine (Environment: Intel Core i5 @ 3.60GHz per core, 16 GB memory and SSD drive) for NTCIR-12 Wiki Formula Browsing Task.}
 \label{boxplot}
 \end{center}
 
-\end{figure*}
+\end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Secondly, we have compared our system effectiveness (Figure \ref{bpref}) and efficiency (Figure \ref{boxplot}) with Tangent-S~\cite{tangent-combine2017}, MCAT~\cite{mcat_16} and our baseline system without pruning~\cite{a0_2019},
-%(see Figure~\ref{boxplot}), 
 which are all structure-based formula search engines  that have obtained the best published Bpref scores on NTCIR-12 dataset.
 In addition, ICST system~\cite{peking2016} also obtains effective results for math and text mixed task, but they do training on previous Wiki dataset and their system is currently not available.
 
-All systems are evaluated on the same machine\footnote{Environment: Intel Core i5 @ 3.60GHz per core, 16 GB memory and SSD drive.} in a single thread for top-1000 results.
+All systems are evaluated in a single thread for top-1000 results.
 %
 We use our best performance strategy, i.e., GBP-LEN, having an on-disk version with posting lists uncompressed and always read from disk, and an in-memory version with compression.
 %
@@ -602,7 +586,7 @@ Tangent-S has a few outliers as a result of its costly alignment algorithm to re
 %
 And MCAT reportedly has a median query execution time around 25 seconds, using a server machine and multi-threading~\cite{mcat_16}.
 So we remove Tangent-S outliers and MCAT from runtime boxplot.
-For space, we only include the faster base-opd-only baseline.
+For space, we only include the faster base-opd-only baseline into Figure~\ref{boxplot}.
 
 We outperform Tangent-S in efficiency even if we exclude their outlier queries, with higher Bpref in non-wildcard fully relevant results. Our efficiency is also better than the baseline system, even if the latter only considers less complex non-wildcard queries.
 %
