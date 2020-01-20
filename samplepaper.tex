@@ -212,7 +212,7 @@ D^{(n)} &= \{d: d \in D, \operatorname{root\_end}(d) = n\} \\
 E^{(m, n)} &= \{(q, d): (q, d) \in E, \operatorname{root\_end}(q) = m, \operatorname{root\_end}(d) = n\} 
 \end{aligned}
 $$
-Then, similarity score $w^*_{Q, D}$ can be calculated from selecting the best matched node pairs and summing their partitions.
+Then, similarity score $w^*_{Q, D}$ can be calculated from selecting the best matched node pairs and summing their partition matches.
 Specifically, define \textit{token paths} of tree $T$ rooted at $n$ as set $\mathfrak{T}(n) = \{t: t = \operatorname{tokenized}(p), p \in \operatorname{leafroot\_paths}(T^n) \}$,
 \begin{align}
 w^*_{Q, D} &= \max_{m \in T_q, n \in T_d} \; \nu(G^{(m, n)}) \\
